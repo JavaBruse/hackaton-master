@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: core
-    image: core
+    image: master
     networks:
       app_network:
         ipv4_address: 172.20.0.13  # Статический IP для контейнера

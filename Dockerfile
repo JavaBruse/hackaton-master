@@ -5,7 +5,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Копируем .jar файл в контейнер
-COPY target/core-1.0.0.jar /app/core-1.0.0.jar
+COPY target/master-1.0.jar /app/master-1.0.jar
 
 # Используем переменную окружения SPRING_PROFILES_ACTIVE для запуска
-CMD ["sh", "-c", "java -jar /app/core-1.0.0.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE}"]
+CMD ["sh", "-c", "java -jar /app/master-1.0.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE}"]
