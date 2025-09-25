@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: core
+    image: core
+    networks:
+      app_network:
+        ipv4_address: 172.20.0.13  # Статический IP для контейнера
+    restart: unless-stopped
+    expose:
+      - "8189"  # Только внутри сети Docker
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}  # Передаем профиль через переменную
+
+networks:
+  app_network:
+    external: true  # Указываем, что сеть внешняя, но она должна быть заранее создана
