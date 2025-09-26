@@ -68,3 +68,8 @@ docker exec broker-1 /opt/kafka/bin/kafka-configs.sh \
 echo "Кластер успешно запущен!"
 
 ```
+
+```shell
+"C:\Program Files\OffsetExplorer3\offsetexplorer.exe" -J-Djava.security.auth.login.config="C:\client_jaas.conf"
+#для запуска offset
+```
