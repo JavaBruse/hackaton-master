@@ -29,7 +29,7 @@ spring:
       default-schema: master_schema
 
   kafka:
-    bootstrap-servers: 172.20.0.23:29092,172.20.0.24:39092,172.20.0.25:49092
+    bootstrap-servers: 172.20.0.23:9092,172.20.0.24:9092,172.20.0.25:9092
     properties:
       security.protocol: PLAINTEXT
 #      sasl.mechanism: SCRAM-SHA-256
