@@ -29,11 +29,11 @@ spring:
       default-schema: master_schema
 
   kafka:
-    bootstrap-servers: 172.20.0.23:19092,172.20.0.24:19092,172.20.0.25:19092
+    bootstrap-servers: 172.20.0.23:29092,172.20.0.24:39092,172.20.0.25:49092
     properties:
       security.protocol: SASL_PLAINTEXT
       sasl.mechanism: SCRAM-SHA-256
-      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="aD9!zT3#vQ7^mR2&yU6*eP1@wX5$kL8";
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="2egE3f690JkejwEopij60qjnioqiowe98";
 
     consumer:
       auto-offset-reset: earliest
