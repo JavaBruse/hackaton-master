@@ -16,12 +16,12 @@ public class KafkaProducerService {
     private static final Logger log = LoggerFactory.getLogger(KafkaProducerService.class);
 
     @Value("${topics.transfer-requests-task}")
-    private String requestTask;
+    private String requestTaskTopic;
 
 
     public void sendTransferRequestTask(PhotoTaskDTO request) {
-        kafkaTemplateTask.send(requestTask, request.getId().toString(), request);
-        log.info("Отправил сообщение в кафку на: " + requestTask + " объект: " + request);
+        kafkaTemplateTask.send(requestTaskTopic, request.getId().toString(), request);
+        log.info("Отправил сообщение в кафку на: " + requestTaskTopic + " объект: " + request);
     }
 
 }

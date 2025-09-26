@@ -1,95 +1,70 @@
 ```shell
-NETWORK_NAME="app_network"
-NETWORK_SUBNET="172.20.0.0/16"
+#!/bin/bash
+set -e
 
-# Удаляем и останавливаем старые контейнеры (если они существуют)
+NETWORK_NAME="app_network"
+ADMIN_USER="admin"
+ADMIN_PASSWORD="2egE3f690JkejwEopij60qjnioqiowe98"
+
+# --- Чистим старые контейнеры ---
 for CONTAINER_NAME in "controller-1" "controller-2" "controller-3" "broker-1" "broker-2" "broker-3"; do
-if docker ps -a --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
-docker stop $CONTAINER_NAME
-docker rm $CONTAINER_NAME
-fi
+  if docker ps -a --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
+    docker stop $CONTAINER_NAME || true
+    docker rm $CONTAINER_NAME || true
+  fi
 done
 
-# Запуск контроллеров (они остаются в PLAINTEXT, только для управления кворумом)
-docker run --name controller-1 \
---network $NETWORK_NAME --ip 172.20.0.20 \
--e KAFKA_NODE_ID=1 \
--e KAFKA_PROCESS_ROLES=controller \
--e KAFKA_LISTENERS=CONTROLLER://172.20.0.20:9093 \
--e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
--e KAFKA_CONTROLLER_QUORUM_VOTERS=1@controller-1:9093,2@controller-2:9093,3@controller-3:9093 \
--d apache/kafka:3.9.0
+# --- Создаем сеть если не существует ---
+docker network create --subnet=172.20.0.0/16 $NETWORK_NAME 2>/dev/null || true
 
-docker run --name controller-2 \
---network $NETWORK_NAME --ip 172.20.0.21 \
--e KAFKA_NODE_ID=2 \
--e KAFKA_PROCESS_ROLES=controller \
--e KAFKA_LISTENERS=CONTROLLER://172.20.0.21:9093 \
--e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
--e KAFKA_CONTROLLER_QUORUM_VOTERS=1@controller-1:9093,2@controller-2:9093,3@controller-3:9093 \
--d apache/kafka:3.9.0
+# --- Запускаем контроллеры ---
+for i in 1 2 3; do
+  docker run --name controller-$i \
+    --network $NETWORK_NAME --ip 172.20.0.$((19+i)) \
+    --restart unless-stopped -d \
+    -e KAFKA_NODE_ID=$i \
+    -e KAFKA_PROCESS_ROLES=controller \
+    -e KAFKA_LISTENERS=CONTROLLER://:9093 \
+    -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+    -e KAFKA_CONTROLLER_QUORUM_VOTERS="1@controller-1:9093,2@controller-2:9093,3@controller-3:9093" \
+    apache/kafka:3.9.0
+done
 
-docker run --name controller-3 \
---network $NETWORK_NAME --ip 172.20.0.22 \
--e KAFKA_NODE_ID=3 \
--e KAFKA_PROCESS_ROLES=controller \
--e KAFKA_LISTENERS=CONTROLLER://172.20.0.22:9093 \
--e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
--e KAFKA_CONTROLLER_QUORUM_VOTERS=1@controller-1:9093,2@controller-2:9093,3@controller-3:9093 \
--d apache/kafka:3.9.0
+sleep 15
 
+# --- Запускаем брокеры с PLAINTEXT для создания пользователя ---
+for i in 1 2 3; do
+  PORT=$((29092 + (i-1)*10000))
+  NODE_ID=$((i+3))
 
-# Запуск брокеров с SASL/SCRAM
-docker run --name broker-1 \
---network $NETWORK_NAME --ip 172.20.0.23 \
--p 29092:9092 \
--e KAFKA_NODE_ID=4 \
--e KAFKA_PROCESS_ROLES=broker \
--e KAFKA_LISTENERS='SASL_PLAINTEXT://172.20.0.23:19092,SASL_PLAINTEXT_HOST://0.0.0.0:9092' \
--e KAFKA_ADVERTISED_LISTENERS='SASL_PLAINTEXT://broker-1:19092,SASL_PLAINTEXT_HOST://localhost:29092' \
--e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP='SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_PLAINTEXT_HOST:SASL_PLAINTEXT,CONTROLLER:PLAINTEXT' \
--e KAFKA_SASL_ENABLED_MECHANISMS=SCRAM-SHA-256 \
--e KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL=SCRAM-SHA-256 \
--e KAFKA_INTER_BROKER_LISTENER_NAME=SASL_PLAINTEXT \
--e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
--e KAFKA_CONTROLLER_QUORUM_VOTERS=1@controller-1:9093,2@controller-2:9093,3@controller-3:9093 \
--d apache/kafka:3.9.0
+  docker run --name broker-$i \
+    --network $NETWORK_NAME --ip 172.20.0.$((22+i)) \
+    -p $PORT:9094 \
+    --restart unless-stopped -d \
+    -v /opt/kafka/config/kafka_server_jaas.conf:/opt/kafka/config/kafka_server_jaas.conf \
+    -e KAFKA_NODE_ID=$NODE_ID \
+    -e KAFKA_PROCESS_ROLES=broker \
+    -e KAFKA_LISTENERS="PLAINTEXT://:9092,SASL_PLAINTEXT://:9094" \
+    -e KAFKA_ADVERTISED_LISTENERS="PLAINTEXT://broker-$i:9092,SASL_PLAINTEXT://5.129.246.42:$PORT" \
+    -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP="PLAINTEXT:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT,CONTROLLER:PLAINTEXT" \
+    -e KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT \
+    -e KAFKA_SASL_ENABLED_MECHANISMS=SCRAM-SHA-256 \
+    -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+    -e KAFKA_CONTROLLER_QUORUM_VOTERS="1@controller-1:9093,2@controller-2:9093,3@controller-3:9093" \
+    -e KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf" \
+    apache/kafka:3.9.0
+done
 
-docker run --name broker-2 \
---network $NETWORK_NAME --ip 172.20.0.24 \
--p 39092:9092 \
--e KAFKA_NODE_ID=5 \
--e KAFKA_PROCESS_ROLES=broker \
--e KAFKA_LISTENERS='SASL_PLAINTEXT://172.20.0.24:19092,SASL_PLAINTEXT_HOST://0.0.0.0:9092' \
--e KAFKA_ADVERTISED_LISTENERS='SASL_PLAINTEXT://broker-2:19092,SASL_PLAINTEXT_HOST://localhost:39092' \
--e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP='SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_PLAINTEXT_HOST:SASL_PLAINTEXT,CONTROLLER:PLAINTEXT' \
--e KAFKA_SASL_ENABLED_MECHANISMS=SCRAM-SHA-256 \
--e KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL=SCRAM-SHA-256 \
--e KAFKA_INTER_BROKER_LISTENER_NAME=SASL_PLAINTEXT \
--e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
--e KAFKA_CONTROLLER_QUORUM_VOTERS=1@controller-1:9093,2@controller-2:9093,3@controller-3:9093 \
--d apache/kafka:3.9.0
+# --- Ждем запуск брокеров ---
+echo "Ждём запуск брокеров..."
+sleep 45
 
-docker run --name broker-3 \
---network $NETWORK_NAME --ip 172.20.0.25 \
--p 49092:9092 \
--e KAFKA_NODE_ID=6 \
--e KAFKA_PROCESS_ROLES=broker \
--e KAFKA_LISTENERS='SASL_PLAINTEXT://172.20.0.25:19092,SASL_PLAINTEXT_HOST://0.0.0.0:9092' \
--e KAFKA_ADVERTISED_LISTENERS='SASL_PLAINTEXT://broker-3:19092,SASL_PLAINTEXT_HOST://localhost:49092' \
--e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP='SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_PLAINTEXT_HOST:SASL_PLAINTEXT,CONTROLLER:PLAINTEXT' \
--e KAFKA_SASL_ENABLED_MECHANISMS=SCRAM-SHA-256 \
--e KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL=SCRAM-SHA-256 \
--e KAFKA_INTER_BROKER_LISTENER_NAME=SASL_PLAINTEXT \
--e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
--e KAFKA_CONTROLLER_QUORUM_VOTERS=1@controller-1:9093,2@controller-2:9093,3@controller-3:9093 \
--d apache/kafka:3.9.0
+# --- Создаем пользователя через PLAINTEXT ---
+docker exec broker-1 /opt/kafka/bin/kafka-configs.sh \
+  --bootstrap-server broker-1:9092 \
+  --alter --add-config "SCRAM-SHA-256=[password=$ADMIN_PASSWORD]" \
+  --entity-type users --entity-name $ADMIN_USER
 
+echo "Кластер успешно запущен!"
 
-# Добавляем пользователя admin/password123 для SASL
-sleep 10
-docker exec broker-1 kafka-configs.sh \
---bootstrap-server broker-1:19092 \
---alter --add-config 'SCRAM-SHA-256=[password=aD9!zT3#vQ7^mR2&yU6*eP1@wX5$kL8]' \
---entity-type users --entity-name admin
 ```
