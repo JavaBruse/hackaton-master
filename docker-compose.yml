@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: core
+    container_name: master
     image: master
     networks:
       app_network:
