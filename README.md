@@ -90,6 +90,6 @@ docker run --name broker-3 \
 sleep 10
 docker exec broker-1 kafka-configs.sh \
 --bootstrap-server broker-1:19092 \
---alter --add-config 'SCRAM-SHA-256=[password=password123]' \
+--alter --add-config 'SCRAM-SHA-256=[password=E3fEGe21e123Fh65jre098ujyh9fewDSGQW315y8hyfe0]' \
 --entity-type users --entity-name admin
 ```

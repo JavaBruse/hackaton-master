@@ -33,7 +33,7 @@ spring:
     properties:
       security.protocol: SASL_PLAINTEXT
       sasl.mechanism: SCRAM-SHA-256
-      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="password123";
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="E3fEGe21e123Fh65jre098ujyh9fewDSGQW315y8hyfe0";
 
     consumer:
       auto-offset-reset: earliest
