@@ -27,3 +27,28 @@ spring:
     show-sql: true
     hibernate:
       default-schema: master_schema
+
+  kafka:
+    bootstrap-servers: 172.20.0.23:19092,172.20.0.24:19092,172.20.0.25:19092
+    properties:
+      security.protocol: SASL_PLAINTEXT
+      sasl.mechanism: SCRAM-SHA-256
+      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="password123";
+
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.javabruse.DTO"
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 3
+      acks: all
+
+topics:
+  transfer-requests-task: "TASK_REQUEST_TOPIC"
+  transfer-response-task: "TASK_RESPONSE_TOPIC"

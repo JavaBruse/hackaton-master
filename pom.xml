@@ -66,6 +66,16 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.javabruse</groupId>
+            <artifactId>common-hackaton</artifactId>
+            <version>1.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
