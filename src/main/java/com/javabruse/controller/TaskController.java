@@ -1,9 +1,6 @@
 package com.javabruse.controller;
 
-import com.javabruse.DTO.CamMessage;
-import com.javabruse.DTO.ConstructionMessage;
-import com.javabruse.DTO.PhotoMessage;
-import com.javabruse.DTO.TaskMessage;
+import com.javabruse.DTO.*;
 import com.javabruse.model.Task;
 import com.javabruse.service.TaskService;
 import com.javabruse.service.kafka.KafkaProducerService;
@@ -16,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 
@@ -42,7 +37,7 @@ public class TaskController {
     }
     @Operation(summary = "Добавляет новую задачу")
     @PostMapping("/add")
-    public ResponseEntity<Object> add(@RequestBody Task task, HttpServletRequest request) {
+    public ResponseEntity<Object> add(@RequestBody TaskRequest task, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
         try {
             return ResponseEntity.status(HttpStatus.OK).body(taskService.add(task, userUUID));
@@ -53,7 +48,7 @@ public class TaskController {
 
     @Operation(summary = "Обновляет новую задачу")
     @PostMapping("/save")
-    public ResponseEntity<Object> save(@RequestBody Task task, HttpServletRequest request) {
+    public ResponseEntity<Object> save(@RequestBody TaskRequest task, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
         try {
             return ResponseEntity.status(HttpStatus.OK).body(taskService.update(task, userUUID));

@@ -1,35 +1,34 @@
 package com.javabruse.service;
 
+import com.javabruse.DTO.TaskRequest;
+import com.javabruse.DTO.TaskResponse;
+import com.javabruse.converter.TaskConverter;
 import com.javabruse.model.Task;
 import com.javabruse.repository.TaskRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class TaskService implements EntityService<Task> {
+public class TaskService implements EntityService<TaskResponse, TaskRequest> {
     private final TaskRepo taskRepo;
+    private final TaskConverter taskConverter;
 
     @Override
-    public List<Task> update(Task task, UUID userUUID) {
+    public List<TaskResponse> update(TaskRequest task, UUID userUUID) {
         Optional<Task> taskOld = taskRepo.findByIdAndUserId(task.getId(), userUUID);
         if (taskOld.isPresent()) {
-            Task task1 = taskOld.get();
-            task1.setUpdatedAt(Instant.now().toEpochMilli());
-            task1.setStatus(task.getStatus());
-            task1.setName(task.getName());
-            taskRepo.save(task1);
+            taskRepo.save(taskConverter.taskRequestUpdate(task, taskOld.get()));
         }
         return getAll(userUUID);
     }
 
     @Override
-    public List<Task> delete(UUID id, UUID userUUID) {
+    public List<TaskResponse> delete(UUID id, UUID userUUID) {
         Optional<Task> task = taskRepo.findByIdAndUserId(id, userUUID);
         if (task.isPresent()) {
             taskRepo.delete(task.get());
@@ -38,14 +37,13 @@ public class TaskService implements EntityService<Task> {
     }
 
     @Override
-    public List<Task> add(Task task, UUID userUUID) {
-        task.setUserId(userUUID);
-        taskRepo.save(task);
+    public List<TaskResponse> add(TaskRequest task, UUID userUUID) {
+        taskRepo.save(taskConverter.taskRequestNew(task, userUUID));
         return getAll(userUUID);
     }
 
     @Override
-    public List<Task> getAll(UUID userUUID) {
-        return taskRepo.findByUserId(userUUID);
+    public List<TaskResponse> getAll(UUID userUUID) {
+        return taskRepo.findByUserId(userUUID).stream().map(taskConverter::taskToTaskResponse).toList();
     }
 }
