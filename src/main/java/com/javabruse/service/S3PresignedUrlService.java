@@ -4,6 +4,7 @@ import com.javabruse.model.PresignedUploadResponse;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -70,6 +71,7 @@ public class S3PresignedUrlService {
                 .key(objectKey)
                 .contentType(contentType)
                 .contentLength(fileSize)
+                .acl(ObjectCannedACL.PUBLIC_READ) // ⬅️ ДОБАВЬТЕ ЭТУ СТРОКУ!
 //                .metadata(metadata)
                 .build();
 
