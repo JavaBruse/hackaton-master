@@ -4,12 +4,13 @@ import com.javabruse.model.PresignedUploadResponse;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -34,6 +35,7 @@ public class S3PresignedUrlService {
                 .bucket(bucketName)
                 .key(objectKey)
                 .contentType(contentType)
+//                .acl(ObjectCannedACL.PUBLIC_READ)
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder ->
@@ -62,16 +64,17 @@ public class S3PresignedUrlService {
                 .contentLength(fileSize)
                 .build();
 
-        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(15))
-                .putObjectRequest(putObjectRequest)
-                .build();
+        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder ->
+                builder.signatureDuration(Duration.ofMinutes(15))
+                        .putObjectRequest(putObjectRequest)
+        );
 
-        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+        // Вручную добавить CORS headers к URL (если поддерживается)
+        String presignedUrl = presignedRequest.url().toString();
 
         return new PresignedUploadResponse(
                 photoId.toString(),
-                presignedRequest.url().toString(),
+                presignedUrl,
                 fullUrl,
                 System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
         );
