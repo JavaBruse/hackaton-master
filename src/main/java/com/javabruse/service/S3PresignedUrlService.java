@@ -35,7 +35,7 @@ public class S3PresignedUrlService {
                 .bucket(bucketName)
                 .key(objectKey)
                 .contentType(contentType)
-                .acl(ObjectCannedACL.PUBLIC_READ)
+//                .acl(ObjectCannedACL.PUBLIC_READ)
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder ->
@@ -72,7 +72,7 @@ public class S3PresignedUrlService {
                 .key(objectKey)
                 .contentType(contentType)
                 .contentLength(fileSize)
-                .acl(ObjectCannedACL.PUBLIC_READ)
+//                .acl(ObjectCannedACL.PUBLIC_READ)
 //                .metadata(metadata)
                 .build();
 
