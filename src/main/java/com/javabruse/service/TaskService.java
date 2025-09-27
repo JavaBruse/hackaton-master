@@ -46,6 +46,6 @@ public class TaskService implements EntityService<Task> {
 
     @Override
     public List<Task> getAll(UUID userUUID) {
-        return taskRepo.findByUserid(userUUID);
+        return taskRepo.findByUserId(userUUID);
     }
 }
