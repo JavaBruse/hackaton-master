@@ -44,7 +44,7 @@ public class PhotoController {
     }
 
 
-    @Operation(summary = "Добавляет новую задачу")
+    @Operation(summary = "Добавляет новое фото")
     @PostMapping("/add")
     public ResponseEntity<List<PhotoResponse>> add(@RequestBody PhotoRequest photo, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
@@ -55,7 +55,7 @@ public class PhotoController {
         }
     }
 
-    @Operation(summary = "Обновляет новую задачу")
+    @Operation(summary = "Обновляет фото")
     @PostMapping("/save")
     public ResponseEntity<List<PhotoResponse>> save(@RequestBody PhotoRequest photo, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
@@ -66,7 +66,7 @@ public class PhotoController {
         }
     }
 
-    @Operation(summary = "Удаляет задачу по ID")
+    @Operation(summary = "Удаляет фото по ID")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<List<PhotoResponse>> deleteFromIdByUUID(@PathVariable String id, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
