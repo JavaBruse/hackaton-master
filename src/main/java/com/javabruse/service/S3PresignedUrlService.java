@@ -35,7 +35,6 @@ public class S3PresignedUrlService {
                 .bucket(bucketName)
                 .key(objectKey)
                 .contentType(contentType)
-//                .acl(ObjectCannedACL.PUBLIC_READ)
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder ->

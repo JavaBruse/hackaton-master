@@ -32,9 +32,6 @@ spring:
     bootstrap-servers: 172.20.0.23:9092,172.20.0.24:9092,172.20.0.25:9092
     properties:
       security.protocol: PLAINTEXT
-#      sasl.mechanism: SCRAM-SHA-256
-#      sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="2egE3f690JkejwEopij60qjnioqiowe98";
-
     consumer:
       auto-offset-reset: earliest
       enable-auto-commit: true
