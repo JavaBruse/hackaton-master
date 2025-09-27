@@ -28,6 +28,29 @@ public class S3PresignedUrlService {
         this.s3BaseUrl = s3BaseUrl;
     }
 
+    public PresignedUploadResponse generatePresignedUploadUrl(UUID photoId, String contentType) {
+        String objectKey = String.format("photos/%s%s", photoId, getExtension(contentType));
+        String fullUrl = s3BaseUrl + objectKey;
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .contentType(contentType)
+//                .acl(ObjectCannedACL.PUBLIC_READ)
+                .build();
+
+        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder ->
+                builder.signatureDuration(Duration.ofMinutes(15))
+                        .putObjectRequest(putObjectRequest)
+        );
+
+        return new PresignedUploadResponse(
+                photoId.toString(),
+                presignedRequest.url().toString(), // Presigned URL для загрузки
+                fullUrl,
+                System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
+        );
+    }
+
     public PresignedUploadResponse generatePresignedUploadUrlWithMetadata(
             UUID photoId, String contentType, long fileSize, String userId) {
 
@@ -41,45 +64,6 @@ public class S3PresignedUrlService {
                 .key(objectKey)
                 .contentType(contentType)
                 .contentLength(fileSize)
-                .build();
-
-        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder ->
-                builder.signatureDuration(Duration.ofMinutes(15))
-                        .putObjectRequest(putObjectRequest)
-        );
-
-        // ⬇️ ДОБАВЬТЕ ЛОГИРОВАНИЕ ДЛЯ ОТЛАДКИ
-        System.out.println("=== S3 DEBUG INFO ===");
-        System.out.println("Bucket: " + bucketName);
-        System.out.println("Object Key: " + objectKey);
-        System.out.println("Full URL: " + fullUrl);
-        System.out.println("Presigned URL: " + presignedRequest.url().toString());
-
-        // Извлекаем подписанные заголовки из URL
-        String url = presignedRequest.url().toString();
-        if (url.contains("X-Amz-SignedHeaders=")) {
-            String signedHeaders = url.split("X-Amz-SignedHeaders=")[1].split("&")[0];
-//            System.out.println("Signed Headers: " + java.net.URLDecoder.decode(signedHeaders, "UTF-8"));
-        }
-        System.out.println("=== END DEBUG ===");
-
-        return new PresignedUploadResponse(
-                photoId.toString(),
-                presignedRequest.url().toString(),
-                fullUrl,
-                System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
-        );
-    }
-
-    // Остальные методы без изменений
-    public PresignedUploadResponse generatePresignedUploadUrl(UUID photoId, String contentType) {
-        String objectKey = String.format("photos/%s%s", photoId, getExtension(contentType));
-        String fullUrl = s3BaseUrl + objectKey;
-
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(objectKey)
-                .contentType(contentType)
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder ->

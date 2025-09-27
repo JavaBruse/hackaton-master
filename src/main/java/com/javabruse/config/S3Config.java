@@ -29,41 +29,34 @@ public class S3Config {
 
     @Bean
     public S3Presigner s3Presigner() {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretAccessKey);
-
-        S3Configuration s3Config = S3Configuration.builder()
-                .pathStyleAccessEnabled(true)  // ⬅️ ИЗМЕНИТЬ НА true для Timeweb
-                .chunkedEncodingEnabled(false)
-                .build();
-
         return S3Presigner.builder()
-                .region(Region.of("ru-1"))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .endpointOverride(URI.create(endpoint))
-                .serviceConfiguration(s3Config)
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretAccessKey)
+                ))
+                .region(Region.of("ru-1"))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(false)
+                        .build())
                 .build();
     }
 
     @Bean
     public S3Client s3Client() {
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretAccessKey);
-
-        S3Configuration s3Config = S3Configuration.builder()
-                .pathStyleAccessEnabled(true)  // ⬅️ ИЗМЕНИТЬ НА true
-                .chunkedEncodingEnabled(false)
-                .build();
-
         return S3Client.builder()
-                .region(Region.of("ru-1"))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .endpointOverride(URI.create(endpoint))
-                .serviceConfiguration(s3Config)
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretAccessKey)
+                ))
+                .region(Region.of("ru-1"))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(false)
+                        .build())
                 .build();
     }
 
     @Bean
     public String s3BaseUrl() {
-        // Для pathStyleAccessEnabled=true используем другой формат
-        return endpoint + "/" + bucketName + "/";
+        return String.format("https://%s.s3.twcstorage.ru/", bucketName);
     }
 }
