@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -27,44 +28,44 @@ public class TaskController {
 
     @Operation(summary = "Получить все задачи пользователя")
     @GetMapping("/all")
-    public ResponseEntity<Object> getAll(HttpServletRequest request) {
+    public ResponseEntity<List<TaskResponse>> getAll(HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
         try {
             return ResponseEntity.status(HttpStatus.OK).body(taskService.getAll(userUUID));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
     @Operation(summary = "Добавляет новую задачу")
     @PostMapping("/add")
-    public ResponseEntity<Object> add(@RequestBody TaskRequest task, HttpServletRequest request) {
+    public ResponseEntity<List<TaskResponse>> add(@RequestBody TaskRequest task, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
         try {
             return ResponseEntity.status(HttpStatus.OK).body(taskService.add(task, userUUID));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
     @Operation(summary = "Обновляет новую задачу")
     @PostMapping("/save")
-    public ResponseEntity<Object> save(@RequestBody TaskRequest task, HttpServletRequest request) {
+    public ResponseEntity<List<TaskResponse>> save(@RequestBody TaskRequest task, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
         try {
             return ResponseEntity.status(HttpStatus.OK).body(taskService.update(task, userUUID));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
     @Operation(summary = "Удаляет задачу по ID")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Object> deleteFromIdByUUID(@PathVariable String id, HttpServletRequest request) {
+    public ResponseEntity<List<TaskResponse>> deleteFromIdByUUID(@PathVariable String id, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
         try {
             return ResponseEntity.status(HttpStatus.OK).body(taskService.delete(UUID.fromString(id), userUUID));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
