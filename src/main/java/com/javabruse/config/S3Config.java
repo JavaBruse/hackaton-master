@@ -29,29 +29,35 @@ public class S3Config {
 
     @Bean
     public S3Presigner s3Presigner() {
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretAccessKey);
+
+        S3Configuration s3Config = S3Configuration.builder()
+                .pathStyleAccessEnabled(false)  // virtual-host style
+                .chunkedEncodingEnabled(false)  // ⬅️ ВАЖНО: отключить chunked encoding
+                .build();
+
         return S3Presigner.builder()
-                .endpointOverride(URI.create(endpoint))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretAccessKey)
-                ))
                 .region(Region.of("ru-1"))
-                .serviceConfiguration(S3Configuration.builder()
-                        .pathStyleAccessEnabled(false)
-                        .build())
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .endpointOverride(URI.create(endpoint))
+                .serviceConfiguration(s3Config)
                 .build();
     }
 
     @Bean
     public S3Client s3Client() {
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretAccessKey);
+
+        S3Configuration s3Config = S3Configuration.builder()
+                .pathStyleAccessEnabled(false)
+                .chunkedEncodingEnabled(false)  // ⬅️ тоже отключить
+                .build();
+
         return S3Client.builder()
-                .endpointOverride(URI.create(endpoint))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretAccessKey)
-                ))
                 .region(Region.of("ru-1"))
-                .serviceConfiguration(S3Configuration.builder()
-                        .pathStyleAccessEnabled(false)
-                        .build())
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .endpointOverride(URI.create(endpoint))
+                .serviceConfiguration(s3Config)
                 .build();
     }
 
