@@ -22,27 +22,27 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
     @Override
     public List<PhotoResponse> update(PhotoRequest photoRequest, UUID userUUID) {
         Optional<Photo> photoOld = photoRepo.findById(photoRequest.getId());
-        if (photoOld.isPresent()){
-            photoRepo.save(photoConverter.photoRequestToUpdatePhoto(photoRequest,photoOld.get()));
+        if (photoOld.isPresent()) {
+            photoRepo.save(photoConverter.photoRequestToUpdatePhoto(photoRequest, photoOld.get()));
         }
-        return getAllByTask(photoRequest.getTaskId(),userUUID);
+        return getAllByTask(photoRequest.getTaskId(), userUUID);
     }
 
     @Override
     public List<PhotoResponse> delete(UUID id, UUID userUUID) {
         Optional<Photo> photo = photoRepo.findById(id);
         UUID taskUUID = null;
-        if (photo.isPresent()){
+        if (photo.isPresent()) {
             taskUUID = photo.get().getTask().getId();
             photoRepo.delete(photo.get());
         }
-        return getAllByTask(taskUUID,userUUID);
+        return getAllByTask(taskUUID, userUUID);
     }
 
     @Override
     public List<PhotoResponse> add(PhotoRequest photoRequest, UUID userUUID) {
-        photoRepo.save(photoConverter.photoRequestToNewPhoto(photoRequest,userUUID));
-        return getAllByTask(photoRequest.getTaskId(),userUUID);
+        photoRepo.save(photoConverter.photoRequestToNewPhoto(photoRequest, userUUID));
+        return getAllByTask(photoRequest.getTaskId(), userUUID);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         return photoRepo.findByUserId(userUUID).stream().map(photoConverter::PhotoToPhotoResponse).toList();
     }
 
-    public List<PhotoResponse> getAllByTask(UUID taskUUID,UUID userUUID) {
+    public List<PhotoResponse> getAllByTask(UUID taskUUID, UUID userUUID) {
         return photoRepo.findByTaskIdAndUserId(taskUUID, userUUID).stream().map(photoConverter::PhotoToPhotoResponse).toList();
     }
 }

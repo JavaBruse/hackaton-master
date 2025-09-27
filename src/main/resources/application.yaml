@@ -52,3 +52,10 @@ spring:
 topics:
   transfer-requests-task: "TASK_REQUEST_TOPIC"
   transfer-response-task: "TASK_RESPONSE_TOPIC"
+
+
+bucket:
+  name: "72d9c863-7b8cb888-f974-4492-b320-93ff121456e1"
+  access-key: "PR6TIS7MAI46XIOTJGF4"
+  secret-access-key: "VqTDoyWy1VE3iDXCJbqCdGxiPARbTneEHqKw3E0k"
+  url: "https://s3.twcstorage.ru"
