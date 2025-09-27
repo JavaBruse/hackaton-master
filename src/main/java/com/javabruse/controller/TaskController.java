@@ -39,7 +39,13 @@ public class TaskController {
             message.setTaskID(UUID.randomUUID());
             PhotoMessage photoMessage = new PhotoMessage();
             CamMessage camMessage = new CamMessage();
-            photoMessage.setFilePath("///Какой то путь///");
+            camMessage.setElevation(4156d);
+            camMessage.setId(UUID.randomUUID());
+            camMessage.setBearing(4564d);
+            camMessage.setLongitude(45615646d);
+            camMessage.setLatitude(3123412d);
+            camMessage.setAddress("Адрес камеры");
+            photoMessage.setFilePath("/3123/5125/fweg/213/Какой то путь/");
             photoMessage.setId(UUID.randomUUID());
             List<ConstructionMessage> list = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
