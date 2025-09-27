@@ -54,7 +54,9 @@ public class S3PresignedUrlService {
     public PresignedUploadResponse generatePresignedUploadUrlWithMetadata(
             UUID photoId, String contentType, long fileSize, String userId) {
 
-        String objectKey = String.format("%s/photos/%s%s", userId, photoId, getExtension(contentType));
+        String objectKey = String.format("%s/photos/%s%s",
+                userId, photoId, getExtension(contentType));
+
         String fullUrl = s3BaseUrl + objectKey;
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -69,12 +71,9 @@ public class S3PresignedUrlService {
                         .putObjectRequest(putObjectRequest)
         );
 
-        // Вручную добавить CORS headers к URL (если поддерживается)
-        String presignedUrl = presignedRequest.url().toString();
-
         return new PresignedUploadResponse(
                 photoId.toString(),
-                presignedUrl,
+                presignedRequest.url().toString(),
                 fullUrl,
                 System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
         );
