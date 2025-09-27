@@ -8,6 +8,7 @@ import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
 import java.util.Map;
@@ -54,37 +55,28 @@ public class S3PresignedUrlService {
     public PresignedUploadResponse generatePresignedUploadUrlWithMetadata(
             UUID photoId, String contentType, long fileSize, String userId) {
 
-        // ObjectKey с пользовательской папкой
-        String objectKey = String.format("%s/photos/%s%s",
-                userId, photoId, getExtension(contentType));
-
-        // Полный URL для filePath
+        String objectKey = String.format("%s/photos/%s%s", userId, photoId, getExtension(contentType));
         String fullUrl = s3BaseUrl + objectKey;
 
-        Map<String, String> metadata = Map.of(
-                "uploaded-by", userId,
-                "photo-id", photoId.toString(),
-                "upload-timestamp", String.valueOf(System.currentTimeMillis())
-        );
-
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName) // ⬅️ bucketName используется здесь!
+                .bucket(bucketName)
                 .key(objectKey)
                 .contentType(contentType)
                 .contentLength(fileSize)
-//                .acl(ObjectCannedACL.PUBLIC_READ)
-//                .metadata(metadata)
                 .build();
 
-        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder ->
-                builder.signatureDuration(Duration.ofMinutes(15))
-                        .putObjectRequest(putObjectRequest)
-        );
+        // Создаем PresignRequest с дополнительными настройками
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(15))
+                .putObjectRequest(putObjectRequest)
+                .build();
+
+        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
 
         return new PresignedUploadResponse(
                 photoId.toString(),
                 presignedRequest.url().toString(),
-                fullUrl, // ⬅️ Полный URL для filePath
+                fullUrl,
                 System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
         );
     }
