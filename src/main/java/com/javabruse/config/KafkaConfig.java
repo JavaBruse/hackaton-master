@@ -1,6 +1,6 @@
 package com.javabruse.config;
 
-import com.javabruse.DTO.PhotoTaskDTO;
+import com.javabruse.DTO.TaskMessage;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +23,7 @@ public class KafkaConfig {
     private String bootstrapServers;
 
     @Bean
-    public ProducerFactory<String, PhotoTaskDTO> producerFactoryTask() {
+    public ProducerFactory<String, TaskMessage> producerFactoryTask() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -34,7 +34,7 @@ public class KafkaConfig {
 
 
     @Bean
-    public KafkaTemplate<String, PhotoTaskDTO> kafkaTemplate() {
+    public KafkaTemplate<String, TaskMessage> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactoryTask());
     }
 
