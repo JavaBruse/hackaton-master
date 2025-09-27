@@ -32,8 +32,8 @@ public class S3Config {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretAccessKey);
 
         S3Configuration s3Config = S3Configuration.builder()
-                .pathStyleAccessEnabled(false)  // virtual-host style
-                .chunkedEncodingEnabled(false)  // ⬅️ ВАЖНО: отключить chunked encoding
+                .pathStyleAccessEnabled(true)  // ⬅️ ИЗМЕНИТЬ НА true для Timeweb
+                .chunkedEncodingEnabled(false)
                 .build();
 
         return S3Presigner.builder()
@@ -49,8 +49,8 @@ public class S3Config {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretAccessKey);
 
         S3Configuration s3Config = S3Configuration.builder()
-                .pathStyleAccessEnabled(false)
-                .chunkedEncodingEnabled(false)  // ⬅️ тоже отключить
+                .pathStyleAccessEnabled(true)  // ⬅️ ИЗМЕНИТЬ НА true
+                .chunkedEncodingEnabled(false)
                 .build();
 
         return S3Client.builder()
@@ -63,6 +63,7 @@ public class S3Config {
 
     @Bean
     public String s3BaseUrl() {
-        return String.format("https://%s.s3.twcstorage.ru/", bucketName);
+        // Для pathStyleAccessEnabled=true используем другой формат
+        return endpoint + "/" + bucketName + "/";
     }
 }
