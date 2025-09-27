@@ -4,12 +4,17 @@ import com.javabruse.model.PresignedUploadResponse;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
@@ -54,29 +59,54 @@ public class S3PresignedUrlService {
     public PresignedUploadResponse generatePresignedUploadUrlWithMetadata(
             UUID photoId, String contentType, long fileSize, String userId) {
 
-        String objectKey = String.format("%s/photos/%s%s",
-                userId, photoId, getExtension(contentType));
-
+        String objectKey = String.format("%s/photos/%s%s", userId, photoId, getExtension(contentType));
         String fullUrl = s3BaseUrl + objectKey;
+
+        // Явно указываем заголовки для подписи
+        Map<String, String> metadata = Map.of(
+                "uploaded-by", userId,
+                "photo-id", photoId.toString()
+        );
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(objectKey)
                 .contentType(contentType)
                 .contentLength(fileSize)
+                .metadata(metadata)
                 .build();
 
-        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder ->
-                builder.signatureDuration(Duration.ofMinutes(15))
-                        .putObjectRequest(putObjectRequest)
-        );
+        try {
+            // Альтернативный способ создания Presigned URL
+            Instant expiration = Instant.now().plus(Duration.ofMinutes(15));
 
-        return new PresignedUploadResponse(
-                photoId.toString(),
-                presignedRequest.url().toString(),
-                fullUrl,
-                System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
-        );
+            S3Presigner presigner = S3Presigner.builder()
+                    .region(Region.of("ru-1"))
+                    .credentialsProvider(StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create(
+                                    System.getenv("AWS_ACCESS_KEY_ID"),
+                                    System.getenv("AWS_SECRET_ACCESS_KEY")
+                            )))
+                    .build();
+
+            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofMinutes(15))
+                    .putObjectRequest(putObjectRequest)
+                    .build();
+
+            PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(presignRequest);
+            String presignedUrl = presignedRequest.url().toString();
+
+            return new PresignedUploadResponse(
+                    photoId.toString(),
+                    presignedUrl,
+                    fullUrl,
+                    System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate presigned URL", e);
+        }
     }
 
     private String getExtension(String contentType) {

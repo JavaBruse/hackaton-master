@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -30,20 +29,15 @@ public class S3Config {
 
     @Bean
     public S3Presigner s3Presigner() {
-        AwsCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(accessKey, secretAccessKey)
-        );
-
-        S3Configuration s3Config = S3Configuration.builder()
-                .pathStyleAccessEnabled(false)
-                .chunkedEncodingEnabled(true)
-                .build();
-
         return S3Presigner.builder()
-                .region(Region.of("ru-1"))
-                .credentialsProvider(credentialsProvider)
                 .endpointOverride(URI.create(endpoint))
-                .serviceConfiguration(s3Config)
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretAccessKey)
+                ))
+                .region(Region.of("ru-1"))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(false)
+                        .build())
                 .build();
     }
 
