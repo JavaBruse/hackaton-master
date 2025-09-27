@@ -15,16 +15,16 @@ import java.net.URI;
 @Configuration
 public class S3Config {
 
-    @Value("${backet.access-key}")
+    @Value("${bucket.access-key}")
     private String accessKey;
 
-    @Value("${backet.secret-access-key}")
+    @Value("${bucket.secret-access-key}")
     private String secretAccessKey;
 
-    @Value("${backet.url}")
+    @Value("${bucket.url}")
     private String endpoint;
 
-    @Value("${backet.name}")
+    @Value("${bucket.name}")
     private String bucketName;
 
     @Bean
