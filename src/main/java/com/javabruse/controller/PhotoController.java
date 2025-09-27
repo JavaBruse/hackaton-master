@@ -8,12 +8,14 @@ import com.javabruse.service.S3PresignedUrlService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/photo")
@@ -48,8 +50,8 @@ public class PhotoController {
                 );
             }
             photoRequest.setFilePath(response.getObjectKey());
-            photoService.add(photoRequest, userUUID);
-
+//            photoService.add(photoRequest, userUUID);
+            log.info("ТИпа сохарнил новое фото вот ссылка: " + photoRequest.getFilePath());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
