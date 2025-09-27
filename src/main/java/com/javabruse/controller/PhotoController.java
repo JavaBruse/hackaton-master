@@ -51,7 +51,10 @@ public class PhotoController {
             }
             photoRequest.setFilePath(response.getObjectKey());
 //            photoService.add(photoRequest, userUUID);
-            log.info("ТИпа сохарнил новое фото вот ссылка: " + photoRequest.getFilePath());
+            System.out.println("=== UPLOAD DEBUG ===");
+            System.out.println("Photo saved to DB with filePath: " + photoRequest.getFilePath());
+            System.out.println("Presigned URL generated: " + response.getUploadUrl());
+            System.out.println("=== END DEBUG ===");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
