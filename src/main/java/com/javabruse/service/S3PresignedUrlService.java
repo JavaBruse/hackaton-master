@@ -20,7 +20,7 @@ public class S3PresignedUrlService {
     private final String s3BaseUrl;
 
     public S3PresignedUrlService(S3Presigner s3Presigner,
-                                 @Value("${backet.name}") String bucketName,
+                                 @Value("${bucket.name}") String bucketName,
                                  String s3BaseUrl) {
         this.s3Presigner = s3Presigner;
         this.bucketName = bucketName;
