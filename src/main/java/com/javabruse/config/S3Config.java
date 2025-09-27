@@ -36,7 +36,7 @@ public class S3Config {
                 ))
                 .region(Region.of("ru-1"))
                 .serviceConfiguration(S3Configuration.builder()
-                        .pathStyleAccessEnabled(true)
+                        .pathStyleAccessEnabled(false)
                         .build())
                 .build();
     }
@@ -50,18 +50,13 @@ public class S3Config {
                 ))
                 .region(Region.of("ru-1"))
                 .serviceConfiguration(S3Configuration.builder()
-                        .pathStyleAccessEnabled(true)
+                        .pathStyleAccessEnabled(false)
                         .build())
                 .build();
     }
 
     @Bean
     public String s3BaseUrl() {
-        // Проверяем, поддерживает ли endpoint поддомены
-        if (endpoint.contains("s3.twcstorage.ru")) {
-            return String.format("https://%s.s3.twcstorage.ru/", bucketName);
-        } else {
-            return endpoint + "/" + bucketName + "/";
-        }
+        return String.format("https://%s.s3.twcstorage.ru/", bucketName);
     }
 }
