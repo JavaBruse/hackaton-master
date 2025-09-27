@@ -28,14 +28,10 @@ public class S3PresignedUrlService {
     }
 
     public PresignedUploadResponse generatePresignedUploadUrl(UUID photoId, String contentType) {
-        // Генерируем objectKey
         String objectKey = String.format("photos/%s%s", photoId, getExtension(contentType));
-
-        // Полный URL для filePath
         String fullUrl = s3BaseUrl + objectKey;
-
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName) // ⬅️ bucketName используется здесь!
+                .bucket(bucketName)
                 .key(objectKey)
                 .contentType(contentType)
                 .build();
@@ -48,7 +44,7 @@ public class S3PresignedUrlService {
         return new PresignedUploadResponse(
                 photoId.toString(),
                 presignedRequest.url().toString(), // Presigned URL для загрузки
-                fullUrl, // ⬅️ Полный URL для сохранения в filePath
+                fullUrl,
                 System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
         );
     }
@@ -74,7 +70,7 @@ public class S3PresignedUrlService {
                 .key(objectKey)
                 .contentType(contentType)
                 .contentLength(fileSize)
-                .metadata(metadata)
+//                .metadata(metadata)
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder ->
