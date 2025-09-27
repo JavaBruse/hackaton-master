@@ -9,6 +9,7 @@ CREATE TABLE tasks (
 
 CREATE TABLE photos (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
     file_path VARCHAR(1000),
     file_hash VARCHAR(250),
     task_id UUID REFERENCES tasks(id) ON DELETE SET NULL,
