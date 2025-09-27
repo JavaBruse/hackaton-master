@@ -55,7 +55,7 @@ public class S3PresignedUrlService {
             UUID photoId, String contentType, long fileSize, String userId) {
 
         // ObjectKey с пользовательской папкой
-        String objectKey = String.format("users/%s/photos/%s%s",
+        String objectKey = String.format("%s/photos/%s%s",
                 userId, photoId, getExtension(contentType));
 
         // Полный URL для filePath
@@ -72,7 +72,7 @@ public class S3PresignedUrlService {
                 .key(objectKey)
                 .contentType(contentType)
                 .contentLength(fileSize)
-//                .acl(ObjectCannedACL.PUBLIC_READ)
+                .acl(ObjectCannedACL.PUBLIC_READ)
 //                .metadata(metadata)
                 .build();
 
