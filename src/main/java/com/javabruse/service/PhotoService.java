@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -51,34 +50,34 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
 
     @Override
     public List<PhotoResponse> getAll(UUID userUUID) {
-        log.info("--получение из бд всех фото-----------------этап 1----------------");
-        List<Photo> list = photoRepo.findByUserId(userUUID);
-        log.info("размер полученного массива: "+list.size());
-        log.info("-------конвертация------------этап 2----------------");
-        List<PhotoResponse> list2 = list.stream().map(photoConverter::PhotoToPhotoResponse).toList();
-        log.info("размер полученного массива: "+list2.size());
-        log.info("-------добавления патч------------этап 3----------------");
-        list2.stream().map(p->{
-                p.setFilePath(getPathViewPhoto(p.getId(),userUUID));
-                return p;
-        }).toList();
-        log.info("добавил временный патч на каждое фото: "+list2.size());
-        log.info("перывй патч: " +list2.get(0).getFilePath());
-        log.info("-------отправка------------этап 4----------------");
-        return list2;
-//        return photoRepo.findByUserId(userUUID).stream()
-//                .map(photo -> {
-//                    PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
-//                    response.setFilePath(getPathViewPhoto(response.getId(), userUUID));
-//                    return response;
-//                }).toList();
+//        log.info("--получение из бд всех фото-----------------этап 1----------------");
+//        List<Photo> list = photoRepo.findByUserId(userUUID);
+//        log.info("размер полученного массива: "+list.size());
+//        log.info("-------конвертация------------этап 2----------------");
+//        List<PhotoResponse> list2 = list.stream().map(photoConverter::PhotoToPhotoResponse).toList();
+//        log.info("размер полученного массива: "+list2.size());
+//        log.info("-------добавления патч------------этап 3----------------");
+//        list2.stream().map(p->{
+//                p.setFilePath(getPathViewPhoto(p,userUUID));
+//                return p;
+//        }).toList();
+//        log.info("добавил временный патч на каждое фото: "+list2.size());
+//        log.info("перывй патч: " +list2.get(0).getFilePath());
+//        log.info("-------отправка------------этап 4----------------");
+//        return list2;
+        return photoRepo.findByUserId(userUUID).stream()
+                .map(photo -> {
+                    PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
+                    response.setFilePath(getPathViewPhoto(response, userUUID));
+                    return response;
+                }).toList();
     }
 
     public List<PhotoResponse> getAllByTask(UUID taskUUID, UUID userUUID) {
         return photoRepo.findByTaskIdAndUserId(taskUUID, userUUID).stream()
                 .map(photo -> {
                     PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
-                    response.setFilePath(getPathViewPhoto(response.getId(), userUUID));
+                    response.setFilePath(getPathViewPhoto(response, userUUID));
                     return response;
                 }).toList();
     }
@@ -90,19 +89,16 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
             throw new RuntimeException("Access denied");
         }
         PhotoResponse photoResponse = photoConverter.PhotoToPhotoResponse(photo);
-        photoResponse.setFilePath(getPathViewPhoto(photoResponse.getId(), userUUID));
+        photoResponse.setFilePath(getPathViewPhoto(photoResponse, userUUID));
         return photoResponse;
     }
 
-    private String getPathViewPhoto(UUID photoUUID, UUID userUUID) {
-        Photo photo = photoRepo.findById(photoUUID)
-                .orElseThrow(() -> new RuntimeException("Photo not found"));
+    private String getPathViewPhoto(PhotoResponse photo, UUID userUUID) {
         StringBuilder sb = new StringBuilder();
         sb.append(userUUID);
         sb.append("/photos/");
-        sb.append(photoUUID);
+        sb.append(photo.getId());
         sb.append(serviceS3.getExtension(photo.getContentType()));
-
         return serviceS3.generatePresignedViewUrl(sb.toString());
     }
 }
