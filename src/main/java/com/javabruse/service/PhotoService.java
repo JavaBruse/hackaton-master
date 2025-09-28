@@ -18,6 +18,7 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
 
     private final PhotoRepo photoRepo;
     private final PhotoConverter photoConverter;
+    private final S3PresignedUrlService serviceS3;
 
     @Override
     public List<PhotoResponse> update(PhotoRequest photoRequest, UUID userUUID) {
@@ -47,10 +48,32 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
 
     @Override
     public List<PhotoResponse> getAll(UUID userUUID) {
-        return photoRepo.findByUserId(userUUID).stream().map(photoConverter::PhotoToPhotoResponse).toList();
+        return photoRepo.findByUserId(userUUID).stream()
+                .map(photo -> {
+                    PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
+                    String fullPath = userUUID + "/photos/" + response.getFilePath();
+                    response.setFilePath(serviceS3.generatePresignedViewUrl(fullPath));
+                    return response;
+                }).toList();
     }
 
     public List<PhotoResponse> getAllByTask(UUID taskUUID, UUID userUUID) {
-        return photoRepo.findByTaskIdAndUserId(taskUUID, userUUID).stream().map(photoConverter::PhotoToPhotoResponse).toList();
+        return photoRepo.findByTaskIdAndUserId(taskUUID, userUUID).stream()
+                .map(photo -> {
+                    PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
+                    String fullPath = userUUID + "/photos/" + response.getFilePath();
+                    response.setFilePath(serviceS3.generatePresignedViewUrl(fullPath));
+                    return response;
+                }).toList();
+    }
+
+    public PhotoResponse getPhoto(UUID photoUUID, UUID userUUID) {
+        PhotoResponse photoResponse = photoConverter.PhotoToPhotoResponse(photoRepo.findById(photoUUID).orElseThrow());
+        StringBuilder sb = new StringBuilder();
+        sb.append(userUUID);
+        sb.append("/photos/");
+        sb.append(photoResponse.getFilePath());
+        photoResponse.setFilePath(sb.toString());
+        return photoResponse;
     }
 }

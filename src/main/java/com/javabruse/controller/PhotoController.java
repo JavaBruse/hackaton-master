@@ -106,19 +106,14 @@ public class PhotoController {
         }
     }
 
-    @GetMapping("/{key}")
-    public ResponseEntity<String> getUrlByKeyID(@PathVariable String key, HttpServletRequest request) {
+    @Operation(summary = "Получить PhotoResponse по ID фото")
+    @GetMapping("/{id}")
+    public ResponseEntity<PhotoResponse> getPhotoUrlByID(@PathVariable String id, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
-        StringBuilder sb = new StringBuilder();
-        sb.append(userUUID);
-        sb.append("/photos/");
-        sb.append(key);
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(presignedUrlService.generatePresignedViewUrl(sb.toString()));
+            return ResponseEntity.status(HttpStatus.OK).body(photoService.getPhoto(UUID.fromString(id), userUUID));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-
-
 }
