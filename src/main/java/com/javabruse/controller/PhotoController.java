@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -112,6 +113,20 @@ public class PhotoController {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
         try {
             return ResponseEntity.status(HttpStatus.OK).body(photoService.getPhoto(UUID.fromString(id), userUUID));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    @Operation(summary = "Redirect на фото в базе данных")
+    @GetMapping("/view/{id}")
+    public ResponseEntity<?> getViewPhotoUrlByID(@PathVariable String id, HttpServletRequest request) {
+        UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
+        try {
+            String filePath = photoService.getPhoto(UUID.fromString(id), userUUID).getFilePath();
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create(filePath))
+                    .build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
