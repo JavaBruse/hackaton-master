@@ -97,8 +97,7 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         StringBuilder sb = new StringBuilder();
         sb.append(userUUID);
         sb.append("/photos/");
-        sb.append(photo.getId());
-        sb.append(serviceS3.getExtension(photo.getContentType()));
+        sb.append(photo.getFilePath());
         return serviceS3.generatePresignedViewUrl(sb.toString());
     }
 }
