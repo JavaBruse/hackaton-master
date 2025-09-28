@@ -50,7 +50,7 @@ public class PhotoController {
                 );
             }
             photoRequest.setFilePath(response.getObjectKey());
-//            photoService.add(photoRequest, userUUID);
+            photoService.add(photoRequest, userUUID);
             System.out.println("=== UPLOAD DEBUG ===");
             System.out.println("Photo saved to DB with filePath: " + photoRequest.getFilePath());
             System.out.println("Presigned URL generated: " + response.getUploadUrl());
