@@ -4,13 +4,13 @@ import com.javabruse.model.PresignedUploadResponse;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
 import java.time.Duration;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -18,19 +18,15 @@ public class S3PresignedUrlService {
 
     private final S3Presigner s3Presigner;
     private final String bucketName;
-    private final String s3BaseUrl;
 
     public S3PresignedUrlService(S3Presigner s3Presigner,
-                                 @Value("${bucket.name}") String bucketName,
-                                 String s3BaseUrl) {
+                                 @Value("${bucket.name}") String bucketName) {
         this.s3Presigner = s3Presigner;
         this.bucketName = bucketName;
-        this.s3BaseUrl = s3BaseUrl;
     }
 
     public PresignedUploadResponse generatePresignedUploadUrl(UUID photoId, String contentType) {
         String objectKey = String.format("photos/%s%s", photoId, getExtension(contentType));
-        String fullUrl = s3BaseUrl + objectKey;
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(objectKey)
@@ -44,8 +40,8 @@ public class S3PresignedUrlService {
 
         return new PresignedUploadResponse(
                 photoId.toString(),
-                presignedRequest.url().toString(), // Presigned URL для загрузки
-                fullUrl,
+                presignedRequest.url().toString(),
+                objectKey,
                 System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
         );
     }
@@ -53,10 +49,7 @@ public class S3PresignedUrlService {
     public PresignedUploadResponse generatePresignedUploadUrlWithMetadata(
             UUID photoId, String contentType, long fileSize, String userId) {
 
-        String objectKey = String.format("%s/photos/%s%s",
-                userId, photoId, getExtension(contentType));
-
-        String fullUrl = s3BaseUrl + objectKey;
+        String objectKey = String.format("%s/photos/%s%s",userId, photoId, getExtension(contentType));
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
@@ -73,9 +66,23 @@ public class S3PresignedUrlService {
         return new PresignedUploadResponse(
                 photoId.toString(),
                 presignedRequest.url().toString(),
-                fullUrl,
+                objectKey,
                 System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
         );
+    }
+
+    public String generatePresignedViewUrl(String objectKey) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .build();
+
+        PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(builder ->
+                builder.signatureDuration(Duration.ofMinutes(60))
+                        .getObjectRequest(getObjectRequest)
+        );
+
+        return presignedRequest.url().toString();
     }
 
     private String getExtension(String contentType) {

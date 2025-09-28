@@ -84,17 +84,6 @@ public class PhotoController {
     }
 
 
-//    @Operation(summary = "Добавляет новое фото")
-//    @PostMapping("/add")
-//    public ResponseEntity<List<PhotoResponse>> add(@RequestBody PhotoRequest photo, HttpServletRequest request) {
-//        UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
-//        try {
-//            return ResponseEntity.status(HttpStatus.OK).body(photoService.add(photo, userUUID));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-//        }
-//    }
-
     @Operation(summary = "Обновляет фото")
     @PostMapping("/save")
     public ResponseEntity<List<PhotoResponse>> save(@RequestBody PhotoRequest photo, HttpServletRequest request) {
@@ -112,6 +101,16 @@ public class PhotoController {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
         try {
             return ResponseEntity.status(HttpStatus.OK).body(photoService.delete(UUID.fromString(id), userUUID));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    @GetMapping("/photo/{key}")
+    public ResponseEntity<String> getUrlByKeyID(@PathVariable String key, HttpServletRequest request) {
+        UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(presignedUrlService.generatePresignedViewUrl(key));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
