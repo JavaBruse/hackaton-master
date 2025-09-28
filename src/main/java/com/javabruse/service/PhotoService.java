@@ -37,7 +37,7 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         UUID taskUUID = null;
         if (photo.isPresent()) {
             taskUUID = photo.get().getTask().getId();
-            serviceS3.deleteObject(getPathViewPhoto(photoConverter.PhotoToPhotoResponse(photo.get()),userUUID));
+            serviceS3.deleteObject(getPathViewPhoto(photo.get().getFilePath(),userUUID));
             photoRepo.delete(photo.get());
         }
         return getAllByTask(taskUUID, userUUID);
@@ -54,7 +54,7 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         return photoRepo.findByUserId(userUUID).stream()
                 .map(photo -> {
                     PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
-                    response.setFilePath(getPathViewPhoto(response, userUUID));
+                    response.setFilePath(getPathViewPhoto(response.getFilePath(), userUUID));
                     return response;
                 }).toList();
     }
@@ -63,7 +63,7 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         return photoRepo.findByTaskIdAndUserId(taskUUID, userUUID).stream()
                 .map(photo -> {
                     PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
-                    response.setFilePath(getPathViewPhoto(response, userUUID));
+                    response.setFilePath(getPathViewPhoto(response.getFilePath(), userUUID));
                     return response;
                 }).toList();
     }
@@ -75,15 +75,15 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
             throw new RuntimeException("Access denied");
         }
         PhotoResponse photoResponse = photoConverter.PhotoToPhotoResponse(photo);
-        photoResponse.setFilePath(getPathViewPhoto(photoResponse, userUUID));
+        photoResponse.setFilePath(getPathViewPhoto(photoResponse.getFilePath(), userUUID));
         return photoResponse;
     }
 
-    private String getPathViewPhoto(PhotoResponse photo, UUID userUUID) {
+    private String getPathViewPhoto(String filePath, UUID userUUID) {
         StringBuilder sb = new StringBuilder();
         sb.append(userUUID);
         sb.append("/photos/");
-        sb.append(photo.getFilePath());
+        sb.append(filePath);
         return serviceS3.generatePresignedViewUrl(sb.toString());
     }
 }
