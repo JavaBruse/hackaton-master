@@ -90,7 +90,7 @@ public class S3PresignedUrlService {
 
     public void deleteObject(String objectKey) {
         s3Client.deleteObject(builder ->
-                builder.bucket(bucketName).key(objectKey)
+                builder.bucket(bucketName).key(objectKey).build()
         );
     }
 
