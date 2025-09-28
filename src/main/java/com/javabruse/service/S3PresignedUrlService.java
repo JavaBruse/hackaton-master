@@ -85,7 +85,7 @@ public class S3PresignedUrlService {
         return presignedRequest.url().toString();
     }
 
-    private String getExtension(String contentType) {
+    public String getExtension(String contentType) {
         if (contentType == null) return ".bin";
         switch (contentType.toLowerCase()) {
             case "image/jpeg":

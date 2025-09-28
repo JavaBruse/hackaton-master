@@ -95,10 +95,14 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
     }
 
     private String getPathViewPhoto(UUID photoUUID, UUID userUUID) {
+        Photo photo = photoRepo.findById(photoUUID)
+                .orElseThrow(() -> new RuntimeException("Photo not found"));
         StringBuilder sb = new StringBuilder();
         sb.append(userUUID);
         sb.append("/photos/");
         sb.append(photoUUID);
+        sb.append(serviceS3.getExtension(photo.getContentType()));
+
         return serviceS3.generatePresignedViewUrl(sb.toString());
     }
 }
