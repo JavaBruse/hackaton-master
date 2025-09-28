@@ -12,7 +12,7 @@ CREATE TABLE photos (
     user_id UUID NOT NULL,
     name VARCHAR(250),
     content_type VARCHAR(250),
-    completed BOOLEAN NOT NULL DEFAULT FALSE
+    completed BOOLEAN NOT NULL DEFAULT FALSE,
     file_size BIGINT,
     file_path VARCHAR(1000),
     file_hash VARCHAR(250),
