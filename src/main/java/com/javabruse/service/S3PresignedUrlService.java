@@ -41,7 +41,7 @@ public class S3PresignedUrlService {
         return new PresignedUploadResponse(
                 photoId.toString(),
                 presignedRequest.url().toString(),
-                objectKey,
+                photoId + getExtension(contentType),
                 System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
         );
     }
@@ -66,7 +66,7 @@ public class S3PresignedUrlService {
         return new PresignedUploadResponse(
                 photoId.toString(),
                 presignedRequest.url().toString(),
-                objectKey,
+                photoId + getExtension(contentType),
                 System.currentTimeMillis() + Duration.ofMinutes(15).toMillis()
         );
     }

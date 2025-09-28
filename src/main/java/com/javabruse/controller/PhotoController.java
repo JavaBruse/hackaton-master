@@ -106,11 +106,15 @@ public class PhotoController {
         }
     }
 
-    @GetMapping("/photo/{key}")
+    @GetMapping("/{key}")
     public ResponseEntity<String> getUrlByKeyID(@PathVariable String key, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
+        StringBuilder sb = new StringBuilder();
+        sb.append(userUUID);
+        sb.append("/photos/");
+        sb.append(key);
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(presignedUrlService.generatePresignedViewUrl(key));
+            return ResponseEntity.status(HttpStatus.OK).body(presignedUrlService.generatePresignedViewUrl(sb.toString()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
