@@ -40,7 +40,7 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
             StringBuilder sb = new StringBuilder();
             sb.append(userUUID);
             sb.append("/photos/");
-            sb.append(photo.get().getId());
+            sb.append(photo.get().getFilePath());
             serviceS3.deleteObject(sb.toString());
             photoRepo.delete(photo.get());
         }
