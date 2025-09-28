@@ -37,6 +37,7 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         UUID taskUUID = null;
         if (photo.isPresent()) {
             taskUUID = photo.get().getTask().getId();
+            serviceS3.deleteObject(getPathViewPhoto(photoConverter.PhotoToPhotoResponse(photo.get()),userUUID));
             photoRepo.delete(photo.get());
         }
         return getAllByTask(taskUUID, userUUID);

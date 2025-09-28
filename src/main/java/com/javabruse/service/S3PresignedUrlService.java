@@ -4,6 +4,7 @@ import com.javabruse.model.PresignedUploadResponse;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -18,11 +19,13 @@ public class S3PresignedUrlService {
 
     private final S3Presigner s3Presigner;
     private final String bucketName;
+    private final S3Client s3Client; // добавь это
 
     public S3PresignedUrlService(S3Presigner s3Presigner,
-                                 @Value("${bucket.name}") String bucketName) {
+                                 @Value("${bucket.name}") String bucketName, S3Client s3Client) {
         this.s3Presigner = s3Presigner;
         this.bucketName = bucketName;
+        this.s3Client = s3Client;
     }
 
     public PresignedUploadResponse generatePresignedUploadUrl(UUID photoId, String contentType) {
@@ -83,6 +86,12 @@ public class S3PresignedUrlService {
         );
 
         return presignedRequest.url().toString();
+    }
+
+    public void deleteObject(String objectKey) {
+        s3Client.deleteObject(builder ->
+                builder.bucket(bucketName).key(objectKey)
+        );
     }
 
     public String getExtension(String contentType) {
