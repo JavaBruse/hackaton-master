@@ -6,12 +6,15 @@ import com.javabruse.converter.PhotoConverter;
 import com.javabruse.model.Photo;
 import com.javabruse.repository.PhotoRepo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> {
@@ -48,12 +51,27 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
 
     @Override
     public List<PhotoResponse> getAll(UUID userUUID) {
-        return photoRepo.findByUserId(userUUID).stream()
-                .map(photo -> {
-                    PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
-                    response.setFilePath(getPathViewPhoto(response.getId(), userUUID));
-                    return response;
-                }).toList();
+        log.info("--получение из бд всех фото-----------------этап 1----------------");
+        List<Photo> list = photoRepo.findByUserId(userUUID);
+        log.info("размер полученного массива: "+list.size());
+        log.info("-------конвертация------------этап 2----------------");
+        List<PhotoResponse> list2 = list.stream().map(photoConverter::PhotoToPhotoResponse).toList();
+        log.info("размер полученного массива: "+list2.size());
+        log.info("-------добавления патч------------этап 3----------------");
+        list2.stream().map(p->{
+                p.setFilePath(getPathViewPhoto(p.getId(),userUUID));
+                return p;
+        }).toList();
+        log.info("добавил временный патч на каждое фото: "+list2.size());
+        log.info("перывй патч: " +list2.get(0).getFilePath());
+        log.info("-------отправка------------этап 4----------------");
+        return list2;
+//        return photoRepo.findByUserId(userUUID).stream()
+//                .map(photo -> {
+//                    PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
+//                    response.setFilePath(getPathViewPhoto(response.getId(), userUUID));
+//                    return response;
+//                }).toList();
     }
 
     public List<PhotoResponse> getAllByTask(UUID taskUUID, UUID userUUID) {
@@ -66,7 +84,12 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
     }
 
     public PhotoResponse getPhoto(UUID photoUUID, UUID userUUID) {
-        PhotoResponse photoResponse = photoConverter.PhotoToPhotoResponse(photoRepo.findById(photoUUID).orElseThrow());
+        Photo photo = photoRepo.findById(photoUUID)
+                .orElseThrow(() -> new RuntimeException("Photo not found"));
+        if (!photo.getUserId().equals(userUUID)) {
+            throw new RuntimeException("Access denied");
+        }
+        PhotoResponse photoResponse = photoConverter.PhotoToPhotoResponse(photo);
         photoResponse.setFilePath(getPathViewPhoto(photoResponse.getId(), userUUID));
         return photoResponse;
     }
