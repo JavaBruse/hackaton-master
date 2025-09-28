@@ -23,7 +23,7 @@ public class PhotoController {
     private final PhotoService photoService;
     private final S3PresignedUrlService presignedUrlService;
 
-    @Operation(summary = "Получить PresignedUploadResponse для загрузки фото на S3 хранилище и сохранить корректные данные в базу данных.")
+    @Operation(summary = "Получить PresignedUploadResponse для загрузки фото на S3, 50мб < фотографии загрузить нельзя. ")
     @PostMapping("/upload")
     public ResponseEntity<PresignedUploadResponse> initUpload(@RequestBody PhotoRequest photoRequest, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
