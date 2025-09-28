@@ -51,8 +51,7 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         return photoRepo.findByUserId(userUUID).stream()
                 .map(photo -> {
                     PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
-                    String fullPath = userUUID + "/photos/" + response.getFilePath();
-                    response.setFilePath(serviceS3.generatePresignedViewUrl(fullPath));
+                    response.setFilePath(getPathViewPhoto(response.getId(), userUUID));
                     return response;
                 }).toList();
     }
@@ -61,19 +60,22 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         return photoRepo.findByTaskIdAndUserId(taskUUID, userUUID).stream()
                 .map(photo -> {
                     PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
-                    String fullPath = userUUID + "/photos/" + response.getFilePath();
-                    response.setFilePath(serviceS3.generatePresignedViewUrl(fullPath));
+                    response.setFilePath(getPathViewPhoto(response.getId(), userUUID));
                     return response;
                 }).toList();
     }
 
     public PhotoResponse getPhoto(UUID photoUUID, UUID userUUID) {
         PhotoResponse photoResponse = photoConverter.PhotoToPhotoResponse(photoRepo.findById(photoUUID).orElseThrow());
+        photoResponse.setFilePath(getPathViewPhoto(photoResponse.getId(), userUUID));
+        return photoResponse;
+    }
+
+    private String getPathViewPhoto(UUID photoUUID, UUID userUUID) {
         StringBuilder sb = new StringBuilder();
         sb.append(userUUID);
         sb.append("/photos/");
-        sb.append(photoResponse.getFilePath());
-        photoResponse.setFilePath(sb.toString());
-        return photoResponse;
+        sb.append(photoUUID);
+        return serviceS3.generatePresignedViewUrl(sb.toString());
     }
 }
