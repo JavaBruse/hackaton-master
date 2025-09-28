@@ -53,7 +53,11 @@ public class PhotoController {
             photoRequest.setFilePath(response.getObjectKey());
 
             log.info("Запрос на сохранение: "+photoRequest);
-            photoService.add(photoRequest, userUUID);
+            try {
+                photoService.add(photoRequest, userUUID);
+            } catch (Exception e){
+                log.info("Ошибка сохранения: " + e.getMessage());
+            }
             System.out.println("=== UPLOAD DEBUG ===");
             System.out.println("Photo saved to DB with filePath: " + photoRequest.getFilePath());
             System.out.println("Presigned URL generated: " + response.getUploadUrl());

@@ -1,4 +1,8 @@
 ```shell
+    task_id UUID REFERENCES tasks(id) ON DELETE SET NULL, --потом исправить ON DELETE CASCADE
+```
+
+```shell
 #!/bin/bash
 set -e
 
