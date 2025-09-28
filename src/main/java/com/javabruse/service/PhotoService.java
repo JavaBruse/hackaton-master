@@ -50,21 +50,6 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
 
     @Override
     public List<PhotoResponse> getAll(UUID userUUID) {
-//        log.info("--получение из бд всех фото-----------------этап 1----------------");
-//        List<Photo> list = photoRepo.findByUserId(userUUID);
-//        log.info("размер полученного массива: "+list.size());
-//        log.info("-------конвертация------------этап 2----------------");
-//        List<PhotoResponse> list2 = list.stream().map(photoConverter::PhotoToPhotoResponse).toList();
-//        log.info("размер полученного массива: "+list2.size());
-//        log.info("-------добавления патч------------этап 3----------------");
-//        list2.stream().map(p->{
-//                p.setFilePath(getPathViewPhoto(p,userUUID));
-//                return p;
-//        }).toList();
-//        log.info("добавил временный патч на каждое фото: "+list2.size());
-//        log.info("перывй патч: " +list2.get(0).getFilePath());
-//        log.info("-------отправка------------этап 4----------------");
-//        return list2;
         return photoRepo.findByUserId(userUUID).stream()
                 .map(photo -> {
                     PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
