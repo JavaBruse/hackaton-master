@@ -2,6 +2,7 @@ package com.javabruse.service;
 
 import com.javabruse.model.PresignedUploadResponse;
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -14,6 +15,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import java.time.Duration;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class S3PresignedUrlService {
 
@@ -89,9 +91,16 @@ public class S3PresignedUrlService {
     }
 
     public void deleteObject(String objectKey) {
-        s3Client.deleteObject(builder ->
-                builder.bucket(bucketName).key(objectKey).build()
-        );
+        try {
+            log.info("Попытка удалить файл из хранилища: " + objectKey);
+            s3Client.deleteObject(builder ->
+                    builder.bucket(bucketName).key(objectKey).build()
+            );
+            // Добавь здесь лог чтобы убедиться что метод вызывается
+            System.out.println("Delete attempted for: " + objectKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public String getExtension(String contentType) {
