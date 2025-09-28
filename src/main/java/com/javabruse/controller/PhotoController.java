@@ -51,6 +51,8 @@ public class PhotoController {
                 );
             }
             photoRequest.setFilePath(response.getObjectKey());
+
+            log.info("Запрос на сохранение: "+photoRequest);
             photoService.add(photoRequest, userUUID);
             System.out.println("=== UPLOAD DEBUG ===");
             System.out.println("Photo saved to DB with filePath: " + photoRequest.getFilePath());
