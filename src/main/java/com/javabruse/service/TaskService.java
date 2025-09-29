@@ -94,13 +94,20 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
     }
 
     public void listenTaskFromKafka(TaskMessage taskMessage) {
+        log.info("------------------Этап-1 listenTaskFromKafka");
         Photo photo = taskMessageConverter.photoTaskToPhoto(taskMessage, Status.COMPLETED);
         for (ConstructMetadata constructMetadata : photo.getConstructMetadata()) {
+            log.info("------------------Этап-2 listenTaskFromKafka");
+
             constructMetadata.setAddress(getAddress(constructMetadata));
         }
+        log.info("------------------Этап-3 listenTaskFromKafka");
         photoRepo.save(photo);
         boolean allCompleted = true;
+        log.info("------------------Этап-4 listenTaskFromKafka");
         Optional<Task> task = taskRepo.findById(photo.getTask().getId());
+        log.info("------------------Этап-5 listenTaskFromKafka");
+
         if (task.isPresent()) {
             for (Photo data : task.get().getPhotos()) {
                 if (!data.getStatus().equals(Status.COMPLETED)) {
@@ -109,6 +116,8 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
                 }
             }
         }
+        log.info("------------------Этап-6 listenTaskFromKafka");
+
         if (allCompleted && task.isPresent()) {
             task.get().setStatus(Status.COMPLETED);
             taskRepo.save(task.get());

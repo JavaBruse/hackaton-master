@@ -23,12 +23,12 @@ public class KafkaProducerService {
 
     public void sendTransferRequestTask(TaskMessage request) {
         kafkaTemplateTask.send(requestTaskTopic, request.getId().toString(), request);
-        log.info("Отправил сообщение в кафку на: " + requestTaskTopic + " объект: " + request);
+        log.info("Отправил сообщение в кафку sendTransferRequestTask  на: " + requestTaskTopic + " объект: " + request);
     }
 
     public void sendTransferResponseTask(TaskMessage request) {
         kafkaTemplateTask.send(responseTaskTopic, request.getId().toString(), request);
-        log.info("Отправил сообщение в кафку на: " + responseTaskTopic + " объект: " + request);
+        log.info("Отправил сообщение в кафку sendTransferResponseTask  на: " + responseTaskTopic + " объект: " + request);
     }
 
 }

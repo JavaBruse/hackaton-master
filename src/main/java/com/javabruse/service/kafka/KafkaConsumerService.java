@@ -31,12 +31,13 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "${topics.transfer-response-task}", groupId = "MASTER_SERVICE")
     public void listenTransferResponse(TaskMessage request) {
         taskService.listenTaskFromKafka(request);
-        log.info("Получил сообщение из кафки топик: " + responseTaskTopic + " объект: " + request);
+        log.info("Получил сообщение из кафки listenTransferResponse  топик: " + responseTaskTopic + " объект: " + request);
     }
 
 
     @KafkaListener(topics = "${topics.transfer-requests-task}", groupId = "MASTER_SERVICE")
     public void listenTransferRequest(TaskMessage request) {
+        log.info("Получил сообщение из кафки  listenTransferRequest топик: " + responseTaskTopic + " объект: " + request);
 
         //какие то тестовые данные..
         request.getPhotoMessage().getCamMessage().setLatitude(55.0 + Math.random() * 10); // Широта 55-65
