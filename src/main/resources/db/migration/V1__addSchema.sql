@@ -34,6 +34,7 @@ CREATE TABLE cam_metadata (
 -- Таблица метаданных конструкций (много записей на одно фото)
 CREATE TABLE construct_metadata (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    position INTEGER,
     type VARCHAR(100),
     photo_id UUID NOT NULL REFERENCES photos(id) ON DELETE CASCADE,
     address VARCHAR(1000),
