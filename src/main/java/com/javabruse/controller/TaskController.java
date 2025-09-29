@@ -70,41 +70,14 @@ public class TaskController {
     }
 
 
-
-//    @GetMapping("/send-task")
-//    public ResponseEntity<Object> getAllPostBySourceID(HttpServletRequest request) {
-//        UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
-//        log.info("UUID пользователя: " + userUUID);
-//        try {
-//            TaskMessage message = new TaskMessage();
-//            message.setId(UUID.randomUUID());
-//            message.setTaskID(UUID.randomUUID());
-//            PhotoMessage photoMessage = new PhotoMessage();
-//            CamMessage camMessage = new CamMessage();
-//            camMessage.setElevation(4156d);
-//            camMessage.setId(UUID.randomUUID());
-//            camMessage.setBearing(4564d);
-//            camMessage.setLongitude(45615646d);
-//            camMessage.setLatitude(3123412d);
-//            camMessage.setAddress("Адрес камеры");
-//            photoMessage.setFilePath("/3123/5125/fweg/213/Какой то путь/");
-//            photoMessage.setId(UUID.randomUUID());
-//            List<ConstructionMessage> list = new ArrayList<>();
-//            for (int i = 0; i < 5; i++) {
-//                ConstructionMessage constructionMessage = new ConstructionMessage();
-//                constructionMessage.setLongitude(Double.valueOf(((i + 12) * 5161)));
-//                constructionMessage.setLatitude(Double.valueOf(((i + 32) * 3123)));
-//                constructionMessage.setAddress("Адресс" + i + 2);
-//                list.add(constructionMessage);
-//            }
-//            photoMessage.setConstructionMessageList(list);
-//            photoMessage.setCamMessage(camMessage);
-//            message.setPhotoMessage(photoMessage);
-//            kafkaProducerService.sendTransferRequestTask(message);
-//            return ResponseEntity.status(HttpStatus.OK).body("Отправлено!");
-//        } catch (Exception e) {
-//            log.error("/v1/task/send-task    Error -----------------------------" + e.getMessage());
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//        }
-//    }
+    @Operation(summary = "Запустить задачу")
+    @PutMapping("/start/{id}")
+    public  ResponseEntity<List<TaskResponse>> startTask(@PathVariable String id, HttpServletRequest request){
+        UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(taskService.sendTaskToKafka(UUID.fromString(id), userUUID));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
 }

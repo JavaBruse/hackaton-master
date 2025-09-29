@@ -18,10 +18,17 @@ public class KafkaProducerService {
     @Value("${topics.transfer-requests-task}")
     private String requestTaskTopic;
 
+    @Value("${topics.transfer-response-task}")
+    private String responseTaskTopic;
 
     public void sendTransferRequestTask(TaskMessage request) {
         kafkaTemplateTask.send(requestTaskTopic, request.getId().toString(), request);
         log.info("Отправил сообщение в кафку на: " + requestTaskTopic + " объект: " + request);
+    }
+
+    public void sendTransferResponseTask(TaskMessage request) {
+        kafkaTemplateTask.send(responseTaskTopic, request.getId().toString(), request);
+        log.info("Отправил сообщение в кафку на: " + responseTaskTopic + " объект: " + request);
     }
 
 }
