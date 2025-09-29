@@ -17,6 +17,7 @@ import com.javabruse.repository.TaskRepo;
 import com.javabruse.service.kafka.KafkaConsumerService;
 import com.javabruse.service.kafka.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TaskService implements EntityService<TaskResponse, TaskRequest> {
@@ -69,17 +71,28 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
 
     public List<TaskResponse> sendTaskToKafka(UUID taskID, UUID userUUID) {
         Optional<Task> taskOpt = taskRepo.findByIdAndUserId(taskID, userUUID);
+        log.info("------------------Этап-1" + taskOpt);
         if (taskOpt.isPresent()) {
+            log.info("------------------Этап-2");
+
             taskOpt.get().setStatus(Status.IN_PROGRESS);
             for (Photo photo : taskOpt.get().getPhotos()) {
+                log.info("------------------Этап-3");
+
                 photo.setStatus(Status.IN_PROGRESS);
             }
             taskRepo.save(taskOpt.get());
+            log.info("------------------Этап-4");
+
             List<TaskMessage> taskMessagesList = taskMessageConverter.taskToPhotoTaskDTOList(taskOpt.get());
             for (TaskMessage message : taskMessagesList) {
+                log.info("------------------Этап-5");
+
                 kafkaProducerService.sendTransferRequestTask(message);
             }
         }
+        log.info("------------------Этап-6");
+
         return getAll(userUUID);
     }
 
