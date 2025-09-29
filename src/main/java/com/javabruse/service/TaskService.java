@@ -74,16 +74,13 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
         log.info("------------------Этап-1" + taskOpt);
         if (taskOpt.isPresent()) {
             log.info("------------------Этап-2");
-
             taskOpt.get().setStatus(Status.IN_PROGRESS);
             for (Photo photo : taskOpt.get().getPhotos()) {
                 log.info("------------------Этап-3");
-
                 photo.setStatus(Status.IN_PROGRESS);
             }
             taskRepo.save(taskOpt.get());
             log.info("------------------Этап-4");
-
             List<TaskMessage> taskMessagesList = taskMessageConverter.taskToPhotoTaskDTOList(taskOpt.get());
             for (TaskMessage message : taskMessagesList) {
                 log.info("------------------Этап-5");
@@ -154,6 +151,7 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
 
         } catch (Exception e) {
             e.printStackTrace();
+            return "";
         }
 
         return "";
