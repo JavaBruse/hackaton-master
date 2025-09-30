@@ -9,7 +9,7 @@ public class PhotoExportDTO {
     private String name;
 
     @ExcelProperty("Размер")
-    private Long fileSize;
+    private String fileSize;
 
     @ExcelProperty("Ссылка через сервис")
     private String src;
