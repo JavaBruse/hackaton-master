@@ -53,7 +53,9 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
     public List<TaskResponse> delete(UUID id, UUID userUUID) {
         Optional<Task> task = taskRepo.findByIdAndUserId(id, userUUID);
         if (task.isPresent()) {
-            taskRepo.delete(task.get());
+            if (!task.get().getStatus().equals(Status.IN_PROGRESS)){
+                taskRepo.delete(task.get());
+            }
         }
         return getAll(userUUID);
     }
@@ -72,14 +74,16 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
     public List<TaskResponse> sendTaskToKafka(UUID taskID, UUID userUUID) {
         Optional<Task> taskOpt = taskRepo.findByIdAndUserId(taskID, userUUID);
         if (taskOpt.isPresent()) {
-            taskOpt.get().setStatus(Status.IN_PROGRESS);
-            for (Photo photo : taskOpt.get().getPhotos()) {
-                photo.setStatus(Status.IN_PROGRESS);
-            }
-            taskRepo.save(taskOpt.get());
-            List<TaskMessage> taskMessagesList = taskMessageConverter.taskToTaskMessageList(taskOpt.get());
-            for (TaskMessage message : taskMessagesList) {
-                kafkaProducerService.sendTransferRequestTask(message);
+            if (taskOpt.get().getStatus().equals(Status.TASK_NEW)) {
+                taskOpt.get().setStatus(Status.IN_PROGRESS);
+                for (Photo photo : taskOpt.get().getPhotos()) {
+                    photo.setStatus(Status.IN_PROGRESS);
+                }
+                taskRepo.save(taskOpt.get());
+                List<TaskMessage> taskMessagesList = taskMessageConverter.taskToTaskMessageList(taskOpt.get());
+                for (TaskMessage message : taskMessagesList) {
+                    kafkaProducerService.sendTransferRequestTask(message);
+                }
             }
         }
         return getAll(userUUID);

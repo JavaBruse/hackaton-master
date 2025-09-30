@@ -4,6 +4,7 @@ import com.javabruse.DTO.PhotoRequest;
 import com.javabruse.DTO.PhotoResponse;
 import com.javabruse.converter.PhotoConverter;
 import com.javabruse.model.Photo;
+import com.javabruse.model.Status;
 import com.javabruse.repository.PhotoRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,20 +37,22 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         Optional<Photo> photo = photoRepo.findById(id);
         UUID taskUUID = null;
         if (photo.isPresent()) {
-            taskUUID = photo.get().getTask().getId();
-            StringBuilder sb = new StringBuilder();
-            sb.append(userUUID);
-            sb.append("/photos/");
-            sb.append(photo.get().getFilePathOriginal());
-            serviceS3.deleteObject(sb.toString());
-            if (photo.get().getFilePathComplete()!=null){
-                StringBuilder sb2 = new StringBuilder();
+            if (!photo.get().getStatus().equals(Status.IN_PROGRESS)) {
+                taskUUID = photo.get().getTask().getId();
+                StringBuilder sb = new StringBuilder();
                 sb.append(userUUID);
                 sb.append("/photos/");
-                sb.append(photo.get().getFilePathComplete());
+                sb.append(photo.get().getFilePathOriginal());
                 serviceS3.deleteObject(sb.toString());
+                if (photo.get().getFilePathComplete() != null) {
+                    StringBuilder sb2 = new StringBuilder();
+                    sb.append(userUUID);
+                    sb.append("/photos/");
+                    sb.append(photo.get().getFilePathComplete());
+                    serviceS3.deleteObject(sb.toString());
+                }
+                photoRepo.delete(photo.get());
             }
-            photoRepo.delete(photo.get());
         }
         return getAllByTask(taskUUID, userUUID);
     }
