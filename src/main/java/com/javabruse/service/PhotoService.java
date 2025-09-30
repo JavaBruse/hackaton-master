@@ -98,7 +98,7 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         return response;
     }
 
-    private String getPathViewPhoto(String filePath, UUID userUUID) {
+    public String getPathViewPhoto(String filePath, UUID userUUID) {
         StringBuilder sb = new StringBuilder();
         sb.append(userUUID);
         sb.append("/photos/");

@@ -32,7 +32,7 @@ public class ReportService {
         photoExportDTO.setName(photo.getName());
         double sizeInMB = photo.getFileSize() / 1024.0 / 1024.0;
         photoExportDTO.setFileSize(String.format("%.3f mb", sizeInMB));
-        photoExportDTO.setSrc(photoService.getPhoto(photo.getId(),photo.getUserId()).getFilePathComplete());
+        photoExportDTO.setSrc(photoService.getPathViewPhoto(photo.getFilePathComplete(),photo.getUserId()));
         photoExportDTO.setNumber(constructMetadata.getPosition());
         photoExportDTO.setAddress(constructMetadata.getAddress());
         photoExportDTO.setLatitude(constructMetadata.getLatitude());
