@@ -40,8 +40,15 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
             StringBuilder sb = new StringBuilder();
             sb.append(userUUID);
             sb.append("/photos/");
-            sb.append(photo.get().getFilePath());
+            sb.append(photo.get().getFilePathOriginal());
             serviceS3.deleteObject(sb.toString());
+            if (photo.get().getFilePathComplete()!=null){
+                StringBuilder sb2 = new StringBuilder();
+                sb.append(userUUID);
+                sb.append("/photos/");
+                sb.append(photo.get().getFilePathComplete());
+                serviceS3.deleteObject(sb.toString());
+            }
             photoRepo.delete(photo.get());
         }
         return getAllByTask(taskUUID, userUUID);
@@ -58,7 +65,8 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         return photoRepo.findByUserId(userUUID).stream()
                 .map(photo -> {
                     PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
-                    response.setFilePath(getPathViewPhoto(response.getFilePath(), userUUID));
+                    response.setFilePathOriginal(getPathViewPhoto(response.getFilePathOriginal(), userUUID));
+                    response.setFilePathComplete(getPathViewPhoto(response.getFilePathComplete(), userUUID));
                     return response;
                 }).toList();
     }
@@ -67,7 +75,8 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         return photoRepo.findByTaskIdAndUserId(taskUUID, userUUID).stream()
                 .map(photo -> {
                     PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
-                    response.setFilePath(getPathViewPhoto(response.getFilePath(), userUUID));
+                    response.setFilePathOriginal(getPathViewPhoto(response.getFilePathOriginal(), userUUID));
+                    response.setFilePathComplete(getPathViewPhoto(response.getFilePathComplete(), userUUID));
                     return response;
                 }).toList();
     }
@@ -78,9 +87,12 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         if (!photo.getUserId().equals(userUUID)) {
             throw new RuntimeException("Access denied");
         }
-        PhotoResponse photoResponse = photoConverter.PhotoToPhotoResponse(photo);
-        photoResponse.setFilePath(getPathViewPhoto(photoResponse.getFilePath(), userUUID));
-        return photoResponse;
+        PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
+        response.setFilePathOriginal(getPathViewPhoto(response.getFilePathOriginal(), userUUID));
+        if (response.getFilePathComplete()==null){
+            response.setFilePathComplete(getPathViewPhoto(response.getFilePathComplete(), userUUID));
+        }
+        return response;
     }
 
     private String getPathViewPhoto(String filePath, UUID userUUID) {

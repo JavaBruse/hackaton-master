@@ -124,12 +124,17 @@ public class PhotoController {
         }
     }
 
-    @Operation(summary = "Redirect на фото в базе данных")
-    @GetMapping("/view/{id}")
-    public ResponseEntity<?> getViewPhotoUrlByID(@PathVariable String id, HttpServletRequest request) {
+    @Operation(summary = "Redirect на фото в базе данных, {id} - id фото в DB, number - 1 оригинал, 2 обработанное")
+    @GetMapping("/view/{id}/{number}")
+    public ResponseEntity<?> getViewPhotoUrlByID(@PathVariable String id,@PathVariable Integer number, HttpServletRequest request) {
         UUID userUUID = UUID.fromString(request.getHeader("X-User-Id"));
         try {
-            String filePath = photoService.getPhoto(UUID.fromString(id), userUUID).getFilePath();
+            String filePath = "";
+            if (number==1){
+                filePath = photoService.getPhoto(UUID.fromString(id), userUUID).getFilePathOriginal();
+            } else {
+                filePath = photoService.getPhoto(UUID.fromString(id), userUUID).getFilePathComplete();
+            }
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(URI.create(filePath))
                     .build();

@@ -14,7 +14,8 @@ CREATE TABLE photos (
     content_type VARCHAR(250),
     status VARCHAR(100),
     file_size BIGINT,
-    file_path VARCHAR(1000),
+    file_path_original VARCHAR(1000),
+    file_path_complete VARCHAR(1000),
     file_hash VARCHAR(250),
     task_id UUID REFERENCES tasks(id) ON DELETE SET NULL,
     updated_at BIGINT DEFAULT EXTRACT(EPOCH FROM now()) * 1000
