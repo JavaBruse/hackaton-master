@@ -88,11 +88,11 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
     public void listenTaskFromKafka(TaskMessage taskMessage) {
         log.info("------------------Этап-1 listenTaskFromKafka");
         Photo photo = taskMessageConverter.taskMessageToPhoto(taskMessage, Status.COMPLETED);
-        for (ConstructMetadata constructMetadata : photo.getConstructMetadata()) {
-            log.info("------------------Этап-2 listenTaskFromKafka");
-
-            constructMetadata.setAddress(getAddress(constructMetadata));
-        }
+//        for (ConstructMetadata constructMetadata : photo.getConstructMetadata()) {
+//            log.info("------------------Этап-2 listenTaskFromKafka");
+//
+//            constructMetadata.setAddress(getAddress(constructMetadata));
+//        }
         log.info("------------------Этап-3 listenTaskFromKafka");
         photoRepo.save(photo);
         boolean allCompleted = true;
