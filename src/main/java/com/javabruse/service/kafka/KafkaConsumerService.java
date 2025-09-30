@@ -42,8 +42,8 @@ public class KafkaConsumerService {
         //какие то тестовые данные..
 //        55.650937, 37.418443
         request.getPhotoMessage().setFilePathComplete(request.getPhotoMessage().getFilePathOriginal());
-        request.getPhotoMessage().getCamMessage().setLatitude(37.418443 + Math.random() * 10); // Широта 55-65
-        request.getPhotoMessage().getCamMessage().setLongitude(55.650937 + Math.random() * 10); // Долгота 37-47
+        request.getPhotoMessage().getCamMessage().setLatitude(55.650937 + (Math.random() * 0.002 - 0.001));
+        request.getPhotoMessage().getCamMessage().setLongitude(37.418443 +  (Math.random() * 0.002 - 0.001)); // Долгота 37-47
         request.getPhotoMessage().getCamMessage().setBearing(Math.random() * 360); // Азимут 0-360
         request.getPhotoMessage().getCamMessage().setElevation(100 + Math.random() * 200); // Высота 100-300
         // Заполняем ConstructionMessage список (3 случайных конструкции)
