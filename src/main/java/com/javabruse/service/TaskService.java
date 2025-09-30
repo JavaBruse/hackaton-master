@@ -95,9 +95,12 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
 //        }
         log.info("------------------Этап-3 listenTaskFromKafka");
         photoRepo.save(photo);
+
         boolean allCompleted = true;
         log.info("------------------Этап-4 listenTaskFromKafka");
-        Optional<Task> task = taskRepo.findById(photo.getTask().getId());
+
+        // Загружаем Task с коллекцией photos в одной транзакции
+        Optional<Task> task = taskRepo.findByIdWithPhotos(photo.getTask().getId());
         log.info("------------------Этап-5 listenTaskFromKafka");
 
         if (task.isPresent()) {
