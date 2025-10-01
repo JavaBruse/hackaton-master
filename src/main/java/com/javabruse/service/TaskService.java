@@ -53,7 +53,7 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
     public List<TaskResponse> delete(UUID id, UUID userUUID) {
         Optional<Task> task = taskRepo.findByIdAndUserId(id, userUUID);
         if (task.isPresent()) {
-            if (!task.get().getStatus().equals(Status.IN_PROGRESS)){
+            if (!task.get().getStatus().equals(Status.IN_PROGRESS)) {
                 taskRepo.delete(task.get());
             }
         }
@@ -93,6 +93,14 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
         Photo photo = taskMessageConverter.taskMessageToPhoto(taskMessage, Status.COMPLETED);
         for (ConstructMetadata constructMetadata : photo.getConstructMetadata()) {
             constructMetadata.setAddress(getAddress(constructMetadata));
+        }
+        try {
+            ConstructMetadata cm = new ConstructMetadata();
+            cm.setLatitude(photo.getCamMetadata().getLatitude());
+            cm.setLongitude(photo.getCamMetadata().getLongitude());
+            photo.getCamMetadata().setAddress(getAddress(cm));
+        } catch (Exception e) {
+
         }
         photoRepo.save(photo);
         boolean allCompleted = true;

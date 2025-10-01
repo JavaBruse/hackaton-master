@@ -42,10 +42,18 @@ public class KafkaConsumerService {
         //какие то тестовые данные..
 //        55.650937, 37.418443
         request.getPhotoMessage().setFilePathComplete(request.getPhotoMessage().getFilePathOriginal());
-        request.getPhotoMessage().getCamMessage().setLatitude(55.650937 +  0.0002); // ±0.001 = ~100 метров
-        request.getPhotoMessage().getCamMessage().setLongitude(37.418443 - 0.0002); // Долгота 37-47
-        request.getPhotoMessage().getCamMessage().setBearing(Math.random() * 360); // Азимут 0-360
-        request.getPhotoMessage().getCamMessage().setElevation(100 + Math.random() * 200); // Высота 100-300
+        try {
+            if (request.getPhotoMessage().getCamMessage().getLatitude()<0){
+                request.getPhotoMessage().getCamMessage().setLatitude(55.650937 +  0.0002); // ±0.001 = ~100 метров
+                request.getPhotoMessage().getCamMessage().setLongitude(37.418443 - 0.0002); // Долгота 37-47
+                request.getPhotoMessage().getCamMessage().setBearing(Math.random() * 360); // Азимут 0-360
+                request.getPhotoMessage().getCamMessage().setElevation(100 + Math.random() * 200); // Высота 100-300
+            }
+        } catch (Exception e){
+            log.info("------------------ ошибка наверно там был нул");
+        }
+
+
         // Заполняем ConstructionMessage список (3 случайных конструкции)
         List<ConstructionMessage> constructionList = new ArrayList<>();
         String[] types = {"Здание", "Мост", "Дорога", "Тоннель", "Опора"};
