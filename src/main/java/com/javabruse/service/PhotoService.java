@@ -46,10 +46,10 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
                 serviceS3.deleteObject(sb.toString());
                 if (photo.get().getFilePathComplete() != null) {
                     StringBuilder sb2 = new StringBuilder();
-                    sb.append(userUUID);
-                    sb.append("/photos/");
-                    sb.append(photo.get().getFilePathComplete());
-                    serviceS3.deleteObject(sb.toString());
+                    sb2.append(userUUID);
+                    sb2.append("/photos/");
+                    sb2.append(photo.get().getFilePathComplete());
+                    serviceS3.deleteObject(sb2.toString());
                 }
                 photoRepo.delete(photo.get());
             }
