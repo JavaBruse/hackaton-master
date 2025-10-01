@@ -2,7 +2,10 @@ package com.javabruse.controller;
 
 import com.javabruse.DTO.PhotoRequest;
 import com.javabruse.DTO.PhotoResponse;
+import com.javabruse.model.CamMetadata;
+import com.javabruse.model.Photo;
 import com.javabruse.model.PresignedUploadResponse;
+import com.javabruse.repository.CamMetadataRepo;
 import com.javabruse.service.PhotoService;
 import com.javabruse.service.S3PresignedUrlService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +26,7 @@ import java.util.UUID;
 public class PhotoController {
     private final PhotoService photoService;
     private final S3PresignedUrlService presignedUrlService;
-
+    private final CamMetadataRepo camMetadataRepo;
     @Operation(summary = "Получить PresignedUploadResponse для загрузки фото на S3, 50мб < фотографии загрузить нельзя. ")
     @PostMapping("/upload")
     public ResponseEntity<PresignedUploadResponse> initUpload(@RequestBody PhotoRequest photoRequest, HttpServletRequest request) {
@@ -54,7 +57,14 @@ public class PhotoController {
 
             log.info("Запрос на сохранение: "+photoRequest);
             try {
-                photoService.add(photoRequest, userUUID);
+                Photo photo= photoService.addAndReturnPhoto(photoRequest, userUUID);
+                if (photoRequest.getLongitude()>0 && photoRequest.getLatitude()>0) {
+                    CamMetadata camMetadata = new CamMetadata();
+                    camMetadata.setLatitude(photoRequest.getLatitude());
+                    camMetadata.setLongitude(photoRequest.getLongitude());
+                    camMetadata.setPhoto(photo);
+                    camMetadataRepo.save(camMetadata);
+                }
             } catch (Exception e){
                 log.info("Ошибка сохранения: " + e.getMessage());
             }

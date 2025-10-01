@@ -63,6 +63,10 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
         return getAllByTask(photoRequest.getTaskId(), userUUID);
     }
 
+    public Photo addAndReturnPhoto(PhotoRequest photoRequest, UUID userUUID) {
+        return  photoRepo.save(photoConverter.photoRequestToNewPhoto(photoRequest, userUUID));
+    }
+
     @Override
     public List<PhotoResponse> getAll(UUID userUUID) {
         return photoRepo.findByUserId(userUUID).stream()
