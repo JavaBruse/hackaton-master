@@ -18,6 +18,7 @@ import com.javabruse.service.kafka.KafkaConsumerService;
 import com.javabruse.service.kafka.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -39,6 +40,7 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
     private final TaskMessageConverter taskMessageConverter;
     private final PhotoRepo photoRepo;
     private final PhotoService photoService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public List<TaskResponse> update(TaskRequest task, UUID userUUID) {
@@ -91,6 +93,12 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
     }
 
     public void listenTaskFromKafka(TaskMessage taskMessage) {
+        try {
+            String json = objectMapper.writeValueAsString(taskMessage);
+            log.info("TaskMessage as JSON: {}", json);
+        } catch (Exception e) {
+            log.error("Error converting TaskMessage to JSON", e);
+        }
         Photo photo = taskMessageConverter.taskMessageToPhoto(taskMessage, Status.COMPLETED);
         for (ConstructMetadata constructMetadata : photo.getConstructMetadata()) {
             constructMetadata.setAddress(getAddress(constructMetadata));
