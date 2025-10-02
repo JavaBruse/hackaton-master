@@ -61,8 +61,8 @@ public class KafkaConsumerService {
             ConstructionMessage construction = new ConstructionMessage();
             construction.setPosition(i);
             construction.setType(types[(int)(Math.random() * types.length)]);
-            construction.setLatitude(request.getPhotoMessage().getCamMessage().getLatitude() + (Math.random() - 0.05) * 0.01); // ±0.005 от камеры
-            construction.setLongitude(request.getPhotoMessage().getCamMessage().getLongitude() + (Math.random() - 0.05) * 0.01); // ±0.005 от камеры
+            construction.setLatitude(request.getPhotoMessage().getCamMessage().getLatitude() + (Math.random() - 0.005) * 0.01); // ±0.005 от камеры
+            construction.setLongitude(request.getPhotoMessage().getCamMessage().getLongitude() + (Math.random() - 0.005) * 0.01); // ±0.005 от камеры
             constructionList.add(construction);
         }
         request.getPhotoMessage().setConstructionMessageList(constructionList);
