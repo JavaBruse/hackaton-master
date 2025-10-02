@@ -2,6 +2,7 @@ package com.javabruse.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.javabruse.DTO.PhotoMessage;
 import com.javabruse.DTO.TaskMessage;
 import com.javabruse.DTO.TaskRequest;
@@ -95,12 +96,9 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
     }
 
     public void listenTaskFromKafka(TaskMessage taskMessage) {
-        try {
-            String json = objectMapper.writeValueAsString(taskMessage);
-            log.info("TaskMessage as JSON: {}", json);
-        } catch (Exception e) {
-            log.error("Error converting TaskMessage to JSON", e);
-        }
+        Gson gson = new Gson();
+        String json = gson.toJson(taskMessage);
+        log.info("With Gson:+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-  {}", json);
         Photo photo = taskMessageConverter.taskMessageToPhoto(taskMessage, Status.COMPLETED);
         for (ConstructMetadata constructMetadata : photo.getConstructMetadata()) {
             constructMetadata.setAddress(getAddress(constructMetadata));
