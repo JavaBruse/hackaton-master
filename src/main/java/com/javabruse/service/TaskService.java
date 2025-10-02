@@ -85,9 +85,7 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
                 taskRepo.save(taskOpt.get());
                 List<TaskMessage> taskMessagesList = taskMessageConverter.taskToTaskMessageList(taskOpt.get());
                 for (TaskMessage message : taskMessagesList) {
-                    log.info("-----------------------------= " + message.getPhotoMessage().getFilePathOriginal());
-                    message.getPhotoMessage().setFilePathOriginal(photoService.getPathViewPhoto(message.getPhotoMessage().getFilePathOriginal(), userUUID));
-                    log.info("------------------фотка получена " + message.getPhotoMessage().getFilePathOriginal());
+                    message.setURLDownloads(photoService.getPathViewPhoto(message.getPhotoMessage().getFilePathOriginal(), userUUID));
                     kafkaProducerService.sendTransferRequestTask(message, userUUID);
                 }
             }
