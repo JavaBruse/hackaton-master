@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class KafkaProducerService {
@@ -21,7 +23,7 @@ public class KafkaProducerService {
     @Value("${topics.transfer-response-task}")
     private String responseTaskTopic;
 
-    public void sendTransferRequestTask(TaskMessage request) {
+    public void sendTransferRequestTask(TaskMessage request, UUID userUUID) {
         kafkaTemplateTask.send(requestTaskTopic, request.getId().toString(), request);
         log.info("Отправил сообщение в кафку sendTransferRequestTask  на: " + requestTaskTopic + " объект: " + request);
     }

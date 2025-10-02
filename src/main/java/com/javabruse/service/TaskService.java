@@ -38,7 +38,7 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
     private final KafkaProducerService kafkaProducerService;
     private final TaskMessageConverter taskMessageConverter;
     private final PhotoRepo photoRepo;
-
+    private final PhotoService photoService;
 
     @Override
     public List<TaskResponse> update(TaskRequest task, UUID userUUID) {
@@ -82,7 +82,8 @@ public class TaskService implements EntityService<TaskResponse, TaskRequest> {
                 taskRepo.save(taskOpt.get());
                 List<TaskMessage> taskMessagesList = taskMessageConverter.taskToTaskMessageList(taskOpt.get());
                 for (TaskMessage message : taskMessagesList) {
-                    kafkaProducerService.sendTransferRequestTask(message);
+                    message.getPhotoMessage().setFilePathOriginal(photoService.getPathViewPhoto(message.getPhotoMessage().getFilePathOriginal(), userUUID));
+                    kafkaProducerService.sendTransferRequestTask(message, userUUID);
                 }
             }
         }
