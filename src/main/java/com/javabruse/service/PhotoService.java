@@ -73,7 +73,9 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
                 .map(photo -> {
                     PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
                     response.setFilePathOriginal(getPathViewPhoto(response.getFilePathOriginal(), userUUID));
-                    response.setFilePathComplete(getPathViewPhoto(response.getFilePathComplete(), userUUID));
+                    if (response.getFilePathComplete()!=null){
+                        response.setFilePathComplete(getPathViewPhoto(response.getFilePathComplete(), userUUID));
+                    }
                     return response;
                 }).toList();
     }
@@ -83,7 +85,9 @@ public class PhotoService implements EntityService<PhotoResponse, PhotoRequest> 
                 .map(photo -> {
                     PhotoResponse response = photoConverter.PhotoToPhotoResponse(photo);
                     response.setFilePathOriginal(getPathViewPhoto(response.getFilePathOriginal(), userUUID));
-                    response.setFilePathComplete(getPathViewPhoto(response.getFilePathComplete(), userUUID));
+                    if (response.getFilePathComplete()!=null){
+                        response.setFilePathComplete(getPathViewPhoto(response.getFilePathComplete(), userUUID));
+                    }
                     return response;
                 }).toList();
     }
