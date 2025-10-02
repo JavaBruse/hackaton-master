@@ -44,7 +44,7 @@ public class KafkaConsumerService {
 //        request.getPhotoMessage().setFilePathComplete(request.getPhotoMessage().getFilePathOriginal());
 
         try {
-            if (request.getPhotoMessage().getCamMessage().getLatitude()<0){
+            if (request.getPhotoMessage().getCamMessage().getLatitude()==null){
                 request.getPhotoMessage().getCamMessage().setLatitude(55.650937 +  0.0002); // ±0.001 = ~100 метров
                 request.getPhotoMessage().getCamMessage().setLongitude(37.418443 - 0.0002); // Долгота 37-47
                 request.getPhotoMessage().getCamMessage().setBearing(Math.random() * 360); // Азимут 0-360
