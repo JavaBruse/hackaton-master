@@ -41,7 +41,8 @@ public class KafkaConsumerService {
 
         //какие то тестовые данные..
 //        55.650937, 37.418443
-        request.getPhotoMessage().setFilePathComplete(request.getPhotoMessage().getFilePathOriginal());
+//        request.getPhotoMessage().setFilePathComplete(request.getPhotoMessage().getFilePathOriginal());
+
         try {
             if (request.getPhotoMessage().getCamMessage().getLatitude()<0){
                 request.getPhotoMessage().getCamMessage().setLatitude(55.650937 +  0.0002); // ±0.001 = ~100 метров
